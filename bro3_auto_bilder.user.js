@@ -473,7 +473,7 @@ var DBG_Flg = false;
 		    var nName = nText.snapshotItem(0).innerHTML.split(":");
 			if (nName[0].length != 12) {
 				// 内政武将がセットされている場合
-				//alert("内政武将は " + nName[0].trim() + " です");
+				// alert("内政武将は " + nName[0].trim() + " です");
 				j$.get("http://"+HOST+"/card/domestic_setting.php#ptop",function(x){
 //					var htmldoc = document.createElement("html");
 //				        htmldoc.innerHTML = x;
@@ -496,9 +496,8 @@ var DBG_Flg = false;
 			try {
 				// 研究所チェック
 				j$.get("http://"+HOST+"/facility/facility.php?x=" + _x + "&y=" + _y ,function(x){
-//					var htmldoc = document.createElement("html");
-//				        htmldoc.innerHTML = x;
-					var htmldoc = createFragment(x);
+					var htmldoc = document.createElement("html");
+				        htmldoc.innerHTML = x;
 					getTrainingSoldier(htmldoc);
 
 					// 内政スキルチェック
@@ -539,9 +538,8 @@ var DBG_Flg = false;
 		//var actionType = TYPE_FACILITY + getParameter("x") + getParameter("y");
 
 		j$.get("http://"+HOST+"/facility/facility.php?x=" + getParameter("x") + "&y=" + getParameter("y") + "#ptop",function(x){
-//			var htmldoc = document.createElement("html");
-//		        htmldoc.innerHTML = x;
-			var htmldoc = createFragment(x);
+			var htmldoc = document.createElement("html");
+		        htmldoc.innerHTML = x;
 			getTrainingSoldier(htmldoc);
 			if ( getStayMode() ) {
 				closeIniBilderBox()
@@ -603,9 +601,8 @@ function settleVillages(z){
 				headers:{"Content-type":"text/html"},
 				overrideMimeType:'text/html; charset=utf-8',
 				onload:function(x){
-					//var htmldoc = document.createElement("html");
-					//htmldoc.innerHTML = x.responseText;
-					var htmldoc = createFragment(x.responseText);
+					var htmldoc = document.createElement("html");
+					htmldoc.innerHTML = x.responseText;
 					//拠点を作成できるかチェック
 					var rmtime = htmldoc.innerHTML.match(/この領地を拠点にする/);
 					if ( rmtime ) { //拠点を作成できる場合作成開始
@@ -621,9 +618,8 @@ function settleVillages(z){
 								headers:{"Content-type":"text/html"},
 								overrideMimeType:'text/html; charset=utf-8',
 								onload:function(x){
-//									var htmldoc = document.createElement("html");
-//									htmldoc.innerHTML = x.responseText;
-									var htmldoc = createFragment(x.responseText);
+									var htmldoc = document.createElement("html");
+									htmldoc.innerHTML = x.responseText;
 									//拠点が作成開始できているか確認
 									if (!htmldoc.innerHTML.match(/名声が不足しています/)) {
 										getAddingVillage(htmldoc);
@@ -724,9 +720,8 @@ function checkVillageLength() {
 				headers:{"Content-type":"text/html"},
 				overrideMimeType:'text/html; charset=utf-8',
 				onload:function(x){
-					//var htmldoc = document.createElement("html");
-				 	//htmldoc.innerHTML = x.responseText;
-				 	var htmldoc = createFragment(x.responseText);
+					var htmldoc = document.createElement("html");
+				 	htmldoc.innerHTML = x.responseText;
 					//拠点リストを更新
 					getUserProf(htmldoc);
 					if ( getStayMode() ) {
@@ -779,9 +774,8 @@ debugLog("=== Start checkVillageLengthDiff ===");
 					headers:{"Content-type":"text/html"},
 					overrideMimeType:'text/html; charset=utf-8',
 					onload:function(x){
-//						var htmldoc = document.createElement("html");
-//					        htmldoc.innerHTML = x.responseText;
-				 	var htmldoc = createFragment(x.responseText);
+						var htmldoc = document.createElement("html");
+					        htmldoc.innerHTML = x.responseText;
 						getUserProf(htmldoc);
 						if ( getStayMode() ) {
 							closeIniBilderBox()
@@ -1157,9 +1151,8 @@ function DeleteFacility(_x,_y){
 			headers:{"Content-type":"text/html"},
 			overrideMimeType:'text/html; charset=utf-8',
 			onload:function(x){
-//				var htmldoc = document.createElement("html");
-//			        htmldoc.innerHTML = x.responseText;
-			 	var htmldoc = createFragment(x.responseText);
+				var htmldoc = document.createElement("html");
+			        htmldoc.innerHTML = x.responseText;
 				var tables = document.evaluate('//*[@name="ssid"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 				var ssid=tables.snapshotItem(0).value;
 
@@ -1542,9 +1535,8 @@ debugLog("=== Start autoLvup ===");
 					headers:{"Content-type":"text/html"},
 					overrideMimeType:'text/html; charset=utf-8',
 					onload:function(x){
-//						var htmldoc = document.createElement("html");
-//					        htmldoc.innerHTML = x.responseText;
-					 	var htmldoc = createFragment(x.responseText);
+						var htmldoc = document.createElement("html");
+					        htmldoc.innerHTML = x.responseText;
 						// 鍛冶場・防具工場情報の取得
 						getTrainingSoldier(htmldoc);
 						if ( getStayMode() ) {
@@ -1768,9 +1760,8 @@ debugLog("=== Start setVillageFacility ===");
 
 	// 拠点の状況を調査（削除中なら処理しない）
 	j$.get("http://"+HOST+"/facility/facility.php?x=3&y=3#ptop",function(x){
-//		var htmldoc = document.createElement("html");
-//	        htmldoc.innerHTML = x;
-	 	var htmldoc = createFragment(x.responseText);
+		var htmldoc = document.createElement("html");
+	        htmldoc.innerHTML = x;
 		var rmtime = htmldoc.innerHTML.match(/(村を削除中です。|砦を削除中です。)[^\d]*(\d+-\d+-\d+ \d+:\d+:\d+)に完了します。/);
 		if (rmtime) {
 			// 削除中のため何もしない
@@ -5311,9 +5302,8 @@ debugLog("=== Start getSoldier ===");
 			headers:{"Content-type":"text/html"},
 			overrideMimeType:'text/html; charset=utf-8',
 			onload:function(x){
-//				var htmldoc = document.createElement("html");
-//			        htmldoc.innerHTML = x.responseText;
-			 	var htmldoc = createFragment(x.responseText);
+				var htmldoc = document.createElement("html");
+			        htmldoc.innerHTML = x.responseText;
 
 				// 待機中の兵士
 				var tables = document.evaluate('//div[@id="wait"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -5478,9 +5468,8 @@ function make_soldier(attackerData){
 						headers:{"Content-type":"text/html"},
 						overrideMimeType:'text/html; charset=utf-8',
 						onload:function(x){
-//							var htmldoc = document.createElement("html");
-//						        htmldoc.innerHTML = x.responseText;
-						 	var htmldoc = createFragment(x.responseText);
+							var htmldoc = document.createElement("html");
+						        htmldoc.innerHTML = x.responseText;
 
 							var makeElem = document.evaluate('//*[@id="area_timer0"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 							if (makeElem.snapshotLength > 0) {
@@ -5955,9 +5944,8 @@ debugLog("=== Start Auto Domestic ===");
 			overrideMimeType:'text/html; charset=utf-8',
 			onload:function(x){
 				
-//				var htmldoc = document.createElement("html");
-//			        htmldoc.innerHTML = x.responseText;
-			 	var htmldoc = createFragment(x.responseText);
+				var htmldoc = document.createElement("html");
+			        htmldoc.innerHTML = x.responseText;
 			        
 	 		       	var skillElem = document.evaluate('//td[@class="skill"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 				for(i=0;i<skillElem.snapshotLength;i++){
@@ -6538,7 +6526,6 @@ function getDomesticSkill(htmldoc) {
 	var data = getMyVillage();
 	data[IDX_ACTIONS] = new Array();
 	var i = -1;
-	
 	// 内政武将名
 	var Name = document.evaluate('//td/a[@class="thickbox"]', htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 	// 使用中
