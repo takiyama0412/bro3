@@ -1,133 +1,62 @@
+
 // ==UserScript==
 // @name         bro3_Auto_Bilder
 // @namespace    http://at-n2.net/
-// @description  ブラウザ三国志 自動建築スクリプト By nottisan + 5zen（自動内政改良）2012/04/24 人柱版+本鯖対応
+// @description  ブラウザ三国志 自動建築スクリプト By nottisan + 5zen（自動内政改良）
 // @icon         http://5zen.info/hokan/icon.png
 // @include      http://*.3gokushi.jp/*
-// @require		 http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js
-// @version		 1.2.3 2012/04/24
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js
+// @require      http://sizzlemctwizzle.com/updater.php?id=132191
+// @homepage     http://5zen.info/
+// @version      2012.06.18 (やっぱり人柱版）
+// @updateURL    http://userscripts.org/scripts/source/132191.meta.js
+// @icon         http://5zen.info/mikanbox/icon.png
 // ==/UserScript==
 
-//2010.10.25 「研究中」「建物削除中」の時建設されないバグを修正
-//2010.10.28 「ALLクリア」機能実装
-//2010.10.28 市場糧自動変換機能仮実装
-//2010.10.29 城・砦・村がレベルアップされないバグを修正
-//2010.10.29 市場糧自動変換機能バグ取り完了
-//2010.10.31 糧村化機能実装
-//2010.12.24 数箇所調整+放置ミス対策して勝手に本家として公開ｗ by nottisan
-//           30分以上拠点画面以外であれば自動で拠点画面へ （自動出兵ツールを使ってる人が居るかもしれないことがあるので、
-//           出兵選択画面・出兵寸前の画面(/facility/castle_send_troop.php)では動作しません。）
-//2010.12.31 糧の変換パターンを追加
-//           平均変換：糧が指定した量になると、３資源で一番少ない物を指定値変換します。
-//           一括変換：糧が指定した量になると、各指定値で変換します。
-//           自動内政発動機能を追加（x知識、x技術、呉の治世、王佐の才）のみスキル使用します。
-//                                  拠点表示時にスキルの使用をチェックします。
-//2010.01.02 自動内政発動機能にあった、スキル3つ持ちの武将でないと発動しないバグを修正
-//           http://krote.blog21.fc2.com/blog-entry-54.htmlのブログを参考にchromeに対応？
-//           ※テストが不十分ですが、FierFox版に問題無いので載せて公開しました。
-//2011.02.05 自動内政部分を個別に設定できるようにしました。指定されている内政スキルをカードの上から順番に使用します。
-//2011.05.04 建設レベルを個別に指定できるようにした。
-//2011.05.15 糧自動変換時に資源ごとの保持上限を設定できるようにした。
-//2011.06.22 糧変換部分の保持上限処理を修正
-//2011.09.06 宿舎ビルド＆スクラップ機能内蔵
-//2011.09.07 設定画面表示時に自動巡回停止
-//           糧一括変換で鉄が変換されないバグを修正( TДT)ｺﾞﾒﾝﾖｰ
-//           拠点間巡回間隔設定を追加（最低拠点巡回間隔 60sec）
-//           建築予約後の巡回間隔を10秒に設定
-//2011.09.27 ブラ三タイマーの機能を内包
-//           建築が終わった拠点への即座に移動機能を追加
-//           拠点のレベルが上がらなかった部分を修正
-//2011.10.04 拠点巡回部分の再構築。
-//           建築終わった拠点を優先的に巡回します。
-//2011.10.11 自動建築しなかったバグを修正
-//           広告うざいので殺した
-//           設定画面位置保存のバグ修正
-//2011.10.12 次元の彼方に飛んで行っていた糧村化オプションの復活
-//           設定ウィンドウを微妙に透過
-//2011.10.13 テキストボックスを右揃えにした
-//2011.10.14 自動造兵システム搭載（テスト中）
-//2011.10.15 自動造兵が動かないバグを修正
-//2011.10.16 自動造兵時に残す資源量を指定するように修正
-//2011.10.17 自動造兵時の兵数チェックが間違っていたのを修正
-//			 自動造兵時の優先順位を残作成兵数の多いものから降順に処理に変更
-//2011.10.18 自動武器レベルアップ処理の追加
-//           設定画面の調整
-//2011.10.19 自動防具レベルアップ処理の追加
-//			 武器防具のレベルアップ情報をHTMLから取得に変更
-//			 ワンタッチ設定ボタンを追加した
-//			 内政スキルに弓兵増強・富国論・富国強兵・美玉歌舞 を追加
-//2011.10.20 こっそりアイコン追加
-//			 プリセットボタンを修正
-//2011.10.21 ビルスク時の施設削除処理を修正。無駄な画面遷移がなくなったはず。
-//			 修行場削除の弊害で村が育ったなかったのを修正
-//2011.11.11 兵作成・武器防具強化においてテーブル定義がずれていたのを修正。
-//2011.11.14 糧変換部分が上手くいかないのを修正。動くかしら？
-//2011.11.18 武器・防具強化ルーチンの修正。多分動くはず・・・
-//2011.12.01 自動寄付が動かない部分の修正
-//           拠点チェックが入っていない場合自動処理を行わないように修正
-//2011.12.06 霧さんの設定画面カスタムを頂戴しました
-//			 武器・防具自動強化にて強化レベル10がある場合のエラーを解消
-//			 微調整（建築完了拠点優先巡回時間を即時→10秒に変更)
-//2011.12.07 宿舎ビルスク時のPOST命令の修正
-//			 リロードタイミングを０秒から１秒へ変更
-//2011.12.02 内政スキル初期化部分修正（追加スキル初期化部分追加） thx p-can さん
-//           造兵部分配列ズレ修正 thx 霧さん
-//			 鍛冶場・防具工場データ追加
-//			 　・鍛冶場　　投石機　 Lv 8 to Lv 9 thx ああさん（時間のみ未確定）
-//			 　　　　　　　投石機　 Lv 9 to Lv10 thx ああさん
-//			 　・防具工場　近衛騎兵 Lv 7 to Lv 8 thx ああさん
-//2011.12.13 鍛冶場・防具工場部分配列ズレ修正
-//			 非常駐時の確認済みボタンの動作修正
-//			 ビルスク時に高レベル施設を優先的にレベルアップするように修正（削除ロス排除？）
-//			 ビルスク動作が変だったのを修正(Rev2)
-//2011.12.14 ビルスク時の動作不良の解消
-//			 凡ミス修正（武器防具フラグ）
-//2011.12.19 武器防具フラグのズレを修正
-//2011.12.23 造兵時のフラグのズレを修正
-//2012.01.11 新プロフィール画面対応
-//           巡回時間を設定間隔に 0 ~ 180sec をランダムに追加
-//2012.01.12 巡回時間のランダム値を10~60sec に変更
-//           巡回時間がすごい長くなっていたのを修正
-//           設定画面リンクを 本家鯖・ハンゲーム鯖 は一番下のCopyrightの横に変更
+// 2012.04.22 巡回部分の修正
+// 2012.04.23 ビルスクの削除部分の修正（対象施設の対象Lv以下の数＋平地数がビルスク対象施設数以下の場合、対象施設名で一番レベルの低いのを削除に変更）
+// 2012.04.24 2012.04.24のメンテに対応
+// 2012.04.25 id="lodgment" がない場合の対応（本鯖）
+// 2012.04.26 本鯖でのダイアログ表示リンクの位置を変更
+//            拠点設定データ呼び出しのバグ修正
+//            糧変換処理がない場合でも市場情報を保存するように修正
+//            糧変換拠点情報をダイアログに表示追加
+// 2012.05.01 よくわかんないけどＰ鯖対応（動くらしい）
+//            自動造兵時に宿舎空きがない場合の処理を修正
+//            userscript.org に公開
+// 2012.05.02 市場情報更新時に即時情報表示に切り替え
+//            拠点巡回中に自動で内政武将のスキル状況の取得
+//            スキル使用武将と使用/回復スキル名を表示するように修正
+// 2012.05.03 削除施設がレベルアップ対象になった場合処理が進まない不具合を修正
+//            拠点のレベルアップ時に、拠点が削除中の場合建設しない処理を追加
+//            造兵・武器防具強化情報の自動取得処理を追加
+// 2012.05.04 研究所の研究中取得がおかしかったのを修正
+//            造兵時のチェックが間違っていたのを修正
+// 2012.05.05 造兵施設がLVMAXの場合の処理を追加
+//            造兵施設での種類数によって取得処理を変更するように修正
+//            ブラ三ニュースけしたった(・з・)
+// 2012.05.07 兵種研究が即完された場合に表示が残る不具合の修正
+//            巡回しなくなっていたバグを修正
+// 2012.05.08 内政チェックしなかったのを修正
+// 2012.05.11 最新のGreasemonkeyで動作しないのを修正（setTimeout→unsafeWindow.setTimeout）
+// 2012.05.23 本拠地の設定ページに市場情報初期化ボタンを追加
+//            巡回時間を修正(2225行あたり）
+// 2012.05.24 Auto_Domestic のバグ修正（過去の巡回しない原因はこれかも）
+//            自動内政のスキル追加（恵風・人選眼力・訓練系・修練系）
+//            市場情報をホスト名ごとに保存
+//            建設完了時間＞設定巡回時間 の時の巡回時間設定が間違ってたのを修正
+//            巡回時間にランダムで盛っていた秒を0秒～60秒から0秒～10秒に変更
+//            本拠地以外に市場があった場合に糧変換しなかったのを修正
+//            市場のある拠点が巡回対象以外でも糧変換するように修正
+//            内政スキル発動後に各処理が多分動作するように修正
+// 2012.05.25 拠点建設設定のデータがない拠点の初期データが間違っていたのを修正
+//            設定画面でNaN(Not a Number)が表示されていたのを修正
+// 2012.05.27 ビルスクの設定が反映されないのを修正
+// 2012.06.18 村・砦削除中の場合その拠点のみビルダー動作を停止
 
-//2012.01.24 逆順巡回を追加
-//           倉庫上限の95%に達した時点で一番少ない資源に5%自動で変換する処理を追加
-//           巡回停止中に巡回しないように修正
+var VERSION = "2012.06.18 (やっぱり人柱版）";	// バージョン情報
 
-//           倉庫上限の95%に達した時点での処理を変更
-//             １．木石鉄のどれかが超えた場合３資源の中で一番少ないものに5%を変換する
-//             ２．木石鉄が95%を超えている場合一番多いものの1%を糧に変換する
-//             ３．木石鉄糧が95%を超えている場合それぞれ1%を寄付する
-//           糧自動変換時に木石鉄が95%を超えていた場合変換しないように変更
-//           初回インストール時の画面を復活
-//           初回インストール時に設定画面の常駐をデフォルトでONに変更
-//
-//           初回時の判定修正
-
-//2012.04.09 拠点作成予約を追加
-//           拠点増減時の拠点リスト自動取得を追加
-//			 拠点自動作成機能の実装（チェックがあまい）
-
-//2012.04.10 拠点破棄情報の取得（自動取得じゃないよ）
-//			 拠点数変動時に強制的に本拠地に戻る処理に変更
-
-//2012.04.12 領地画面や建築画面で停止した場合の処理
-
-//2012.04.13 複数の市場がある場合一番レベルの高い市場で変換するように処理を修正
-//           上記変更に伴い市場変換部の設定は本拠地のみとした
-//           不評だった資源あふれ時の自動寄付を削除
-
-//2012.04.16 市場変換処理周りの修正
-//           拠点情報取得時の処理の修正（市場データは本拠地から取得）
-
-//2012.04.22 巡回部分の修正
-
-//2012.04.23 ビルスクの削除部分の修正（対象施設の対象Lv以下の数＋平地数がビルスク対象施設数以下の場合、対象施設名で一番レベルの低いのを削除に変更）
-
-//2012.04.24 2012.04.24のメンテに対応
-
-// リンクタイプの設定(0=5zen式/1=kiri式)
-var LinkType = 0;
+var DEBUG = false;
 
 // 色設定
 
@@ -135,6 +64,8 @@ var COLOR_FRAME	= "#333333";	// 枠背景色
 var COLOR_BASE	= "#654634";	// 拠点リンク色
 var COLOR_TITLE	= "#FFCC00";	// 各BOXタイトル背景色
 var COLOR_BACK	= "#FFF2BB";	// 各BOX背景色
+
+var DomesticFlg = false;
 
 /*!
 * jQuery Cookie Plugin
@@ -272,8 +203,9 @@ var OPT_TORIDE = 0; //自動砦化オプション
 var OPT_SOUKO_MAX = 1; //倉庫の最大数
 
 //内政用 by nottisan
-//              1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0
-var OPT_DOME = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+//                                1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 3 3 4 
+//              1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 
+var OPT_DOME = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 var OPT_BLD = "AC";
 var OPT_SorH = "DD";
 var OPT_MAX = 3;
@@ -285,14 +217,13 @@ var OPT_BUILD_VID;
 
 
 //グローバル変数
-var VERSION = "1.2.3β+5zen 2012/04/25 人柱版+本鯖対応";	// バージョン情報
 //var INTERVAL = 1000;			// 負荷対策 回線速度によっては正常動作しない時があります。その際は数値を増やしてください。1秒=1000
 //var INTERVAL2 = 2000;			// 負荷対策 回線速度によっては正常動作しない時があります。その際は数値を増やしてください。1秒=1000
 
 var INTERVAL  = 1000 + Math.floor( Math.random() * 5000 );			// 負荷対策 回線速度によっては正常動作しない時があります。その際は数値を増やしてください。1秒=1000
 var INTERVAL2 = 2000 + Math.floor( Math.random() * 5000 );			// 負荷対策 回線速度によっては正常動作しない時があります。その際は数値を増やしてください。1秒=1000
 var HOST = location.hostname; //アクセスURLホスト
-var PGNAME = "_Auto_Bilder_5zen_v1.21_20111019_Rev2"; //グリモン領域への保存時のPGの名前
+var PGNAME = "_Auto_Bilder_5zen_v1.21_20120524"; //グリモン領域への保存時のPGの名前
 var TIMEOUT_URL ="/false/login_sessionout.php"; //タイムアウト時のURLの一部
 var g_MD="";
 
@@ -417,9 +348,15 @@ var DASkill = [ "■■■■",
                 "農林知識","農林技術",
                 "加工知識","加工技術",
                 "富国","富国論","富国強兵",
-				"豊穣","美玉歌舞",
-                "呉の治世","王佐の才"];
-//alert(DASkill[1]);
+		"豊穣","美玉歌舞",
+		"恵風","人選眼力",
+                "呉の治世","王佐の才",
+		"練兵訓練","練兵修練",
+		"兵舎訓練","兵舎修練",
+		"弓兵訓練","弓兵修練",
+		"厩舎訓練","厩舎修練",
+		"兵器訓練","兵器修練"
+];
 // ＠＠　ここまで　＠＠
 
 // 屯田機能用
@@ -433,9 +370,6 @@ var DBG_Flg = false;
 
 //Main
 (function(){
-	if (DBG_Flg) {
-//		console.log(HOST + "\t" + generateDateString2(new Date()) + "\t----------------------------------------------------------------------------------------------------------------------------------");
-	}
 	initUrlParams();
 
 	var mixi_ad_head = xpath('//div[@ID="mixi_ad_head"]', document);
@@ -446,6 +380,10 @@ var DBG_Flg = false;
 	var mixi_ad_groups = xpath('//div[@ID="mixi_ad_groups"]', document);
 	if (mixi_ad_groups.snapshotLength) {
 		mixi_ad_groups.snapshotItem(0).style.display = "none";
+	}
+	var mixi_ad_news = xpath('//div[@class="brNews"]', document);
+	if (mixi_ad_news.snapshotLength) {
+		mixi_ad_news.snapshotItem(0).style.display = "none";
 	}
 
 	addOpenLinkHtml()
@@ -469,23 +407,27 @@ var DBG_Flg = false;
 	// 領地画面や建築画面で停止した場合の処理
 	// ５分間止まっていた場合拠点画面に移動する
 	if(location.pathname == "/land.php" || location.pathname == "/facility/facility.php") {
-		setTimeout(function(){location.href = "http://"+HOST+"/village.php";},300000);
+		unsafeWindow.setTimeout(function(){location.href = "http://"+HOST+"/village.php";},300000);
 	}
 	// =============================================================================================
 	//君主プロフィール画面なら都市画面URLを取得
 	if ((location.pathname == "/user/" || location.pathname == "/user/index.php") &&
 		getParameter("user_id") == "") {
 		getUserProf(document);
+		if ( getStayMode() ) {
+			closeIniBilderBox()
+			openIniBilderBox()
+		}
 	}
     OPT_BUILD_VID = GM_getValue(HOST+PGNAME+"OPT_BUILD_VID" , "" );
 
 	if (location.pathname == "/village.php") {
+
 		var vID = "";
 		//座標を取得
-		var xyElem = document.evaluate('//*[@id="basepoint"]/span[@class="xy"]',
-			document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		var xyElem = document.evaluate('//*[@id="basepoint"]/span[@class="xy"]',document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 		vId = trim(xyElem.snapshotItem(0).innerHTML);
-		Load_OPT(vId)
+		Load_OPT(vId);
 		if (OPT_BUILD_VID != getVillageID(vId)) {
 	        GM_setValue(HOST+PGNAME+"OPT_BUILD_VID" , "" );
 			OPT_BUILD_VID = "";
@@ -502,56 +444,114 @@ var DBG_Flg = false;
 				break;
 			}
 		}
+
 		// 拠点にチェックがある場合建設処理を行う
 		if (tChk1){
-			if (OPT_BLD == "AC") { 
-				setVillageFacility();	// 拠点建築チェック
-			} else {
-				setVillageFacility2(); 	// 宿舎ビルド＆スクラッチ
-			}
-
-			getSoldier();			// 自動造兵処理
-			autoLvup();				// 自動武器・防具強化
-			ichibaChange(vId);		// 市場処理
-//			OverFlowPrevention();	// 資源溢れ防止処理
-			autoDonate();			// 自動寄付処理
-			Auto_Domestic();		// 自動内政処理 by nottisan
+			Auto_Domestic();		    // 自動内政処理 by nottisan
+		} else {
+			ichibaChange(vId);		    // 市場処理
+			autoDonate();			    // 自動寄付処理
 		}
+		// 研究所情報取得
+		var area = new Array();
+		area = get_area();
 
-		forwardNextVillage();		// 次の拠点へ移動
+		var _x = -1;
+		var _y = -1;
+		var _lv = -1;
+		for (var i=0;i<area.length;i++){
+			if (area[i].name == "研究所") {
+				var Temp = area[i].xy.split(",");
+				_x = Temp[0];
+				_y = Temp[1];
+				_lv = area[i].lv;
+			}
+		}
+		if ( _x < 0 ) {
+			// 内政スキルチェック
+			var nText = document.evaluate('//*[@class="base-skill"]/span/a', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		    var nName = nText.snapshotItem(0).innerHTML.split(":");
+			if (nName[0].length != 12) {
+				// 内政武将がセットされている場合
+				// alert("内政武将は " + nName[0].trim() + " です");
+				j$.get("http://"+HOST+"/card/domestic_setting.php#ptop",function(x){
+					var htmldoc = document.createElement("html");
+				        htmldoc.innerHTML = x;
+					getDomesticSkill(htmldoc);		// 内政スキル使用チェック
+					forwardNextVillage();			// 次の拠点へ移動
+				});
+			} else {
+				// 内政武将がセットされていない場合
+				var data = getMyVillage();
+				data[IDX_ACTIONS] = new Array();
+				saveVillage(data, TYPE_DOMESTIC);
+			 	if ( getStayMode() ) {
+					closeIniBilderBox()
+					openIniBilderBox()
+				}
+				forwardNextVillage();						// 次の拠点へ移動
+			}
+		} else {
+			try {
+				// 研究所チェック
+				j$.get("http://"+HOST+"/facility/facility.php?x=" + _x + "&y=" + _y ,function(x){
+					var htmldoc = document.createElement("html");
+				        htmldoc.innerHTML = x;
+					getTrainingSoldier(htmldoc);
 
-	}
-
-
-	//内政設定画面なら使用中スキルを取得
-	if (location.pathname == "/card/domestic_setting.php") {
-		getDomesticSkill();
+					// 内政スキルチェック
+					var nText = document.evaluate('//*[@class="base-skill"]/span/a', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+				    var nName = nText.snapshotItem(0).innerHTML.split(":");
+					if (nName[0].length != 12) {
+						// 内政武将がセットされている場合
+						// alert("内政武将は " + nName[0].trim() + " です");
+						j$.get("http://"+HOST+"/card/domestic_setting.php#ptop",function(x){
+							var htmldoc = document.createElement("html");
+						        htmldoc.innerHTML = x;
+							getDomesticSkill(htmldoc);		// 内政スキル使用チェック
+							forwardNextVillage();			// 次の拠点へ移動
+						});
+					} else {
+						// 内政武将がセットされていない場合
+						var data = getMyVillage();
+						data[IDX_ACTIONS] = new Array();
+						saveVillage(data, TYPE_DOMESTIC);
+					 	if ( getStayMode() ) {
+							closeIniBilderBox()
+							openIniBilderBox()
+						}
+						forwardNextVillage();						// 次の拠点へ移動
+					}
+				});
+			}catch(e) {
+				// エラーが発生した場合次の拠点へ移動
+				forwardNextVillage();						// 次の拠点へ移動
+			}
+		}
 	}
 
 	//兵士作成画面なら作成中兵士を取得
 	if (location.pathname == "/facility/facility.php") {
-		getTrainingSoldier();
-	}
 
-/*
-    if (location.pathname == "/card/busyobook_picture.php")
-    {
-        j$("a[class*=card-link]").each(function ()
-        {
-            var a = j$("span[class=cardno]", j$(this).parent()).text().trim();
-            j$(this).parent().append("<input type=button value=トレードで探す>").css({
-                "text-align" : "center", "z-index" : "10"
-            }).bind('click', function ()
-            {
-                location.href = "http://" + HOST + "/card/trade.php?s=price&o=a&t=no&k=" + a + "&tl=0";
-            })
-        })
-    }
-*/
+		//var actionType = TYPE_FACILITY + getParameter("x") + getParameter("y");
+
+		j$.get("http://"+HOST+"/facility/facility.php?x=" + getParameter("x") + "&y=" + getParameter("y") + "#ptop",function(x){
+			var htmldoc = document.createElement("html");
+		        htmldoc.innerHTML = x;
+			getTrainingSoldier(htmldoc);
+			if ( getStayMode() ) {
+				closeIniBilderBox()
+				openIniBilderBox()
+			}
+		});
+
+	}
 
 })();
 
 function log() { unsafeWindow.console.log.apply(unsafeWindow.console, Array.slice(arguments)) };
+
+function debugLog( mes ) {	if (DEBUG) { console.log(mes); }	};
 
 // ===========================================================================================================
 
@@ -585,14 +585,14 @@ function settleVillages(z){
 	//新規拠点作成に必要な名声があれば拠点作成
 	if ( checkFame() ){
 		//予約データ取得
-		var lists = cloadData("ReserveList", "[]", true, true);
+		var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 		if( lists.length == 0 || z >= lists.length) {return;}
 		if( lists[z].status != 1 && lists[z].status != 0) {settleVillages(z+1);return;}
 		var mURL = LANDLINK;
 		mURL = mURL.replace(URL_SITE,HOST);
 		mURL = mURL.replace(URL_X,lists[z].x);
 		mURL = mURL.replace(URL_Y,lists[z].y);
-		var tid=setTimeout(function(){
+		var tid=unsafeWindow.setTimeout(function(){
 			GM_xmlhttpRequest({
 				method:"GET", 
 				url:mURL,
@@ -609,7 +609,7 @@ function settleVillages(z){
 						mURL = mURL.replace(URL_X,lists[z].x);
 						mURL = mURL.replace(URL_Y,lists[z].y);
 						mURL = mURL.replace(URL_fID,lists[z].kind);
-						var tid=setTimeout(function(){
+						var tid=unsafeWindow.setTimeout(function(){
 							GM_xmlhttpRequest({
 								method:"GET", 
 								url:mURL,
@@ -651,21 +651,25 @@ function settleVillages(z){
 		var bldtbl = [17, 35, 54, 80, 112, 150, 195, 248, 310, 999];
 		//現在の拠点の数
 		//var villages = loadVillages(HOST);
-		var villageLength = document.evaluate('//div[@id="lodgment"]/div/ul/li/a',
-			document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); //拠点数－１になる
+		//var villageLength = document.evaluate('//div[@id="lodgment"]/div/ul/li/a', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); //拠点数－１になる
+
+		// 2012.04.25 本鯖対応
+		var villageLength = $a('//ul/li/a[contains(@href,"/village_change.php?village_id")]').length; //拠点数－１になる
+
 		//作成中の拠点の数
-        var lists = cloadData("ReserveList", "[]", true, true);
+        var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 		var x = 0;
 		for (var i=0 ; i<lists.length ; i++) {
 			if(lists[i].status == 2){x++;}
 		}
-		return (fameMAX >= bldtbl[villageLength.snapshotLength + x]);
+//		return (fameMAX >= bldtbl[villageLength.snapshotLength + x]);
+		return (fameMAX >= bldtbl[villageLength + x]);
 	}
 
 	function failSettleVillage(z) {
-		var lists = cloadData("ReserveList", "[]", true, true);
+		var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 		if (lists[z].status == 1) { lists[z].status = 0;}
-		csaveData( "ReserveList", lists, true, true );
+		csaveData(HOST+"ReserveList", lists, true, true );
 	}
 }
 
@@ -673,12 +677,9 @@ function settleVillages(z){
 // 拠点数の保存情報と現状を比較＆修正 2012.04.09
 function checkVillageLength() {
         //データ整理
-	var lists = cloadData("ReserveList", "[]", true, true);
+	var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 	lists = checkList(lists);       //時間の過ぎたものを削除
 
-//	for(var i=0 ; i<lists.length ; i++) {
-//		alert(lists[i].kind + ":" + lists[i].x + ":" + lists[i].y + ":" + lists[i].time.substr(-8));
-//	}
 
 	//予定時刻を過ぎていたら新規拠点情報を取得
 	function checkList(lists)
@@ -699,7 +700,7 @@ function checkVillageLength() {
 				if( lists[i].status == 2 ) { lists[i].status = 3; flg = 1;} //作成 -> 作成完了
 			}
 		}
-		csaveData( "ReserveList", lists, true, true );
+		csaveData(HOST+"ReserveList", lists, true, true );
 		//拠点情報を取得＆移動
 		if (flg == 1){
 			getUserProfJumpNewVillage();
@@ -710,7 +711,7 @@ function checkVillageLength() {
 	}
 
 	function getUserProfJumpNewVillage(){
-		var tid=setTimeout(function(){
+		var tid=unsafeWindow.setTimeout(function(){
 			GM_xmlhttpRequest({
 				method:"GET", 
 				url:"http://" + HOST + "/user/",
@@ -721,9 +722,13 @@ function checkVillageLength() {
 				 	htmldoc.innerHTML = x.responseText;
 					//拠点リストを更新
 					getUserProf(htmldoc);
+					if ( getStayMode() ) {
+						closeIniBilderBox()
+						openIniBilderBox()
+					}
 					//本拠地に強制ジャンプ
 					var villages = loadVillages(HOST+PGNAME);
-					var tid=setTimeout(function(){
+					var tid=unsafeWindow.setTimeout(function(){
 						location.href = villages[0][IDX_URL];},INTERVAL);
 					//新規拠点に移動
 					//jumpNewVillage();
@@ -738,7 +743,7 @@ function checkVillageLength() {
 			for (var j = villages.length-1; j >= 0; j--) {
 				//新規と名のつく拠点へ移動
 				if(villages[j][IDX_BASE_NAME].match(/新規/)){
-					var tid=setTimeout(function(){
+					var tid=unsafeWindow.setTimeout(function(){
 						location.href = villages[j][IDX_URL];},INTERVAL);
 					return;
 				}
@@ -749,16 +754,18 @@ function checkVillageLength() {
 
 	//拠点数が変わっていたら情報取得 @@1@@
 	function checkVillageLengthDiff() {
-	var ifmixi = d.evaluate('//*[@id="supportNavi"]', d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-		if ( ifmixi.snapshotLength ) {
-		
+
+debugLog("=== Start checkVillageLengthDiff ===");
+
 		var villages = loadVillages(HOST+PGNAME);
-	console.log(villages);
-		var villageLength = document.evaluate('//div[@id="lodgment"]/div/ul/li',document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); //拠点数
-	console.log(villageLength);
-	
-		if (villages.length != villageLength.snapshotLength) {
-			setTimeout(function(){
+//		var villageLength = document.evaluate('//div[@id="lodgment"]/div/ul/li', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); //拠点数
+
+		// 2012.04.25 本鯖対応
+		var villageLength = $a('//ul/li/a[contains(@href,"/village_change.php?village_id")]').length + 1; //拠点数
+
+		//if (villages.length != villageLength.snapshotLength) {
+		if (villages.length != villageLength) {
+			unsafeWindow.setTimeout(function(){
 				GM_xmlhttpRequest({
 					method:"GET", 
 					url:"http://" + HOST + "/user/",
@@ -768,14 +775,18 @@ function checkVillageLength() {
 						var htmldoc = document.createElement("html");
 					        htmldoc.innerHTML = x.responseText;
 						getUserProf(htmldoc);
-						var tid=setTimeout(function(){location.reload();},INTERVAL);
+						if ( getStayMode() ) {
+							closeIniBilderBox()
+							openIniBilderBox()
+						}
+						var tid=unsafeWindow.setTimeout(function(){location.reload();},INTERVAL);
 					}
 				});
 			}, INTERVAL);
 		}
 	}
 }
-}
+
 //Beyond系save, load関数
 function csaveData(key, value, local, ev)
 {
@@ -826,7 +837,7 @@ function getAddingVillage(htmldoc) {
 
 	function addList(tim, kind, status, x, y) 
 	{
-		var lists = cloadData("ReserveList", "[]", true, true);
+		var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 
 		var flg = 0;
 		for(var i=0 ; i<lists.length ; i++) {
@@ -845,7 +856,7 @@ function getAddingVillage(htmldoc) {
 			if(a.time < b.time) return -1;
 			return 0;});
 
-		csaveData( "ReserveList", lists, true, true );
+		csaveData(HOST+"ReserveList", lists, true, true );
 	}
 
 	function addLink() {
@@ -942,7 +953,7 @@ function getAddingVillage(htmldoc) {
 
 	function addList2(kind, status, x, y) //kind=220:村予約 222:砦予約
 	{
-		var lists = cloadData("ReserveList", "[]", true, true);
+		var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 
 		var dt = new Date();
 		var ntime = dt.getFullYear() + "-" +
@@ -963,7 +974,7 @@ function getAddingVillage(htmldoc) {
 			if(a.time < b.time) return -1;
 			return 0;});
 
-		csaveData( "ReserveList", lists, true, true );
+		csaveData(HOST+"ReserveList", lists, true, true );
 
 		return 0;
 	}
@@ -1035,7 +1046,7 @@ function addLinkTondenVillage() {
 
 	function addList2(kind, status, x, y) //kind=220:村予約 222:砦予約
 	{
-		var lists = cloadData("ReserveList", "[]", true, true);
+		var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 
 		var dt = new Date();
 		var ntime = dt.getFullYear() + "-" +
@@ -1056,7 +1067,7 @@ function addLinkTondenVillage() {
 			if(a.time < b.time) return -1;
 			return 0;});
 
-		csaveData( "ReserveList", lists, true, true );
+		csaveData(HOST+"ReserveList", lists, true, true );
 
 		return 0;
 	}
@@ -1085,7 +1096,7 @@ function getDeletingVillage(htmldoc) {
 
 	function addList(tim, kind, status, x, y) 
 	{
-		var lists = cloadData("ReserveList", "[]", true, true);
+		var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 
 		var flg = 0;
 		for(var i=0 ; i<lists.length ; i++) {
@@ -1104,18 +1115,18 @@ function getDeletingVillage(htmldoc) {
 			if(a.time < b.time) return -1;
 			return 0;});
 
-		csaveData( "ReserveList", lists, true, true );
+		csaveData(HOST+"ReserveList", lists, true, true );
 	}
 
 	function delList(kind, x, y) //kind=0:land 1:castle
 	{
-		var lists = cloadData("ReserveList", "[]", true, true);
+		var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 
 		for(var i=0 ; i<lists.length ; i++) {
 			if(lists[i].x == x && lists[i].y == y ) {
 				if( lists[i].status == 4 && kind == 1 ) {
 					lists.splice(i,1);
-					csaveData( "ReserveList", lists, true, true );
+					csaveData(HOST+"ReserveList", lists, true, true );
 					break;
 				}
 			}
@@ -1127,8 +1138,7 @@ function getDeletingVillage(htmldoc) {
 // =================================================================================================
 
 function DeleteFacility(_x,_y){
-//	console.log("===== Start DeleteFacility ================================================================================");
-	var tid=setTimeout(function(){
+	var tid=unsafeWindow.setTimeout(function(){
 		var mURL = FACLINK;
 		mURL = mURL.replace(URL_SITE,HOST);
 		mURL = mURL.replace(URL_X,_x);
@@ -1139,20 +1149,18 @@ function DeleteFacility(_x,_y){
 			headers:{"Content-type":"text/html"},
 			overrideMimeType:'text/html; charset=utf-8',
 			onload:function(x){
-//				console.log(x);
 				var htmldoc = document.createElement("html");
 			        htmldoc.innerHTML = x.responseText;
 				var tables = document.evaluate('//*[@name="ssid"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 				var ssid=tables.snapshotItem(0).value;
 
-//				console.log("Delete Start (" + _x + "," + _y + ")");
 				var c={};
 				c['x'] = parseInt(_x);
 				c['y'] = parseInt(_y);
 				c['ssid']=tables.snapshotItem(0).value;
 				c['remove']="%E5%BB%BA%E7%89%A9%E3%82%92%E5%A3%8A%E3%81%99";
 				j$.post("http://"+HOST+"/facility/facility.php?x=" + _x + "&y=" + _y + "#ptop",c,function(){});
-				var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+				var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 
 			}
 		});
@@ -1162,6 +1170,7 @@ function DeleteFacility(_x,_y){
 
 function autoLvup() {
 
+debugLog("=== Start autoLvup ===");
 
 	var cost_bk_ken=[
 		[ 165,  135,   0,  0, 6600],
@@ -1477,8 +1486,6 @@ function autoLvup() {
 
 			if (loop == 0) { var type = "鍛冶場"; }
 			if (loop == 1) { var type = "防具工場"; }
-console.log(type);
-//			console.log("==== " + type + "強化 ======================================================================");
 			if (OPT_BKBG_CHK == 0) { return; }
 
 			var UnitID = [];
@@ -1513,7 +1520,7 @@ console.log(type);
 			if ( _x < 0 ) {
 				return;
 			}
-			var tid=setTimeout(function(){
+			var tid=unsafeWindow.setTimeout(function(){
 
 				var mURL = FACLINK;
 				mURL = mURL.replace(URL_SITE,HOST);
@@ -1528,6 +1535,12 @@ console.log(type);
 					onload:function(x){
 						var htmldoc = document.createElement("html");
 					        htmldoc.innerHTML = x.responseText;
+						// 鍛冶場・防具工場情報の取得
+						getTrainingSoldier(htmldoc);
+						if ( getStayMode() ) {
+							closeIniBilderBox()
+							openIniBilderBox()
+						}
 
 						var actionsElem  = document.evaluate('//th[@class="mainTtl6"]', htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 //						var actionsElem2 = document.evaluate('//b[@class="f14"]',       htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -1575,7 +1588,6 @@ console.log(type);
 									var BG_Go    = false;
 								}
 */
-								console.log(BG_Name + " : " + BG_LvNm + " : " + BG_UID + " : " + BG_Lv + " : " + BG_WOOD + " : " + BG_STONE + " : " + BG_IRON + " : " + BG_RICE + " : " + BG_TIME + " : " + BG_Go);
 								if (type == "鍛冶場") {
 									var BG_GoLv  = OPT_BK_LV[ ( UnitID[actionsElem.snapshotItem(i+1).innerHTML][0] - 300 ) ];
 								} else {
@@ -1594,9 +1606,8 @@ console.log(type);
 								c['x'] = parseInt(_x);
 								c['y'] = parseInt(_y);
 								c['unit_id'] = parseInt(Buki[0][3]);
-//								console.log(HOST + " " + type + "強化 " + Buki[0]);
 								j$.post("http://"+HOST+"/facility/facility.php?x=" + parseInt(_x) + "&y=" + parseInt(_y) + "#ptop",c,function(){});
-			//					var tid=setTimeout(function(){location.reload(false);},0);
+			//					var tid=unsafeWindow.setTimeout(function(){location.reload(false);},0);
 
 							}
 						}	
@@ -1604,14 +1615,10 @@ console.log(type);
 
 						function checkBKLvup(hwood,hstone,hiron,hrice,hgo,hnlv,hslv) {
 
-		//					console.log("check Start");
-
 							var wood = parseInt( $("wood").innerHTML, 10 );
 							var stone = parseInt( $("stone").innerHTML, 10 );
 							var iron = parseInt( $("iron").innerHTML, 10 );
 							var rice = parseInt( $("rice").innerHTML, 10 );
-
-		//					console.log(wood + " : " + stone + " : " + iron + " : " + rice);
 
 		//					var temp = (parseInt(hwood) + 99);
 
@@ -1634,24 +1641,48 @@ console.log(type);
 }
 
 function setVillageFacility() {
+
+debugLog("=== Start setVillageFacility ===");
+
 	var cnt=0;
 	var vID = "";
+
+	var del=0;
+	var delX = 0;
+	var delY = 0;
+
 	//座標を取得
-	var xyElem = document.evaluate('//*[@id="basepoint"]/span[@class="xy"]',
-		document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	var xyElem = document.evaluate('//*[@id="basepoint"]/span[@class="xy"]', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 	vId = trim(xyElem.snapshotItem(0).innerHTML);
-	//alert(vId);
 	
 	//建設情報を取得
-	var actionsElem = document.evaluate('//*[@id="actionLog"]/ul/li',
-		document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	var actionsElem = document.evaluate('//*[@id="actionLog"]/ul/li', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+
+	// 削除施設情報の取得
+	for (var i = 0; i < actionsElem.snapshotLength; i++) {
+		var paItem = actionsElem.snapshotItem(i);
+		//ステータス
+		var buildStatusElem = document.evaluate('./span[@class="buildStatus"]/a', paItem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		if (buildStatusElem.snapshotLength > 0) {
+			//施設建設数
+			cnt++;
+
+			// 削除数カウント
+			if( buildStatusElem.snapshotItem(0).parentNode.parentNode.textContent.indexOf("削除") >= 0 ){
+				if(buildStatusElem.snapshotItem(0).href.match(/.*\/.*(\d+).*(\d+)/)){
+					delX = parseInt(RegExp.$1);
+					delY = parseInt(RegExp.$2);
+				}
+				del++;
+			}
+		}
+	}
+
 
 	for (var i = 0; i < actionsElem.snapshotLength; i++) {
 		var paItem = actionsElem.snapshotItem(i);
 		//ステータス
-		var buildStatusElem = document.evaluate('./span[@class="buildStatus"]/a',
-			paItem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-		//alert(buildStatusElem);
+		var buildStatusElem = document.evaluate('./span[@class="buildStatus"]/a', paItem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 		if (buildStatusElem.snapshotLength > 0) {
 			//建物削除等に対応 2010.10.25 byおぜがづ
 			for(var j=0; j<buildStatusElem.snapshotLength;j++){
@@ -1664,15 +1695,12 @@ function setVillageFacility() {
 			//cnt++;
 		}
 	}
-	//alert(actionsElem.snapshotLength);
 
 	Load_OPT(vId);	//LvUP対象の取得
 
 	//建設予約ができるかどうか
 	// ＠＠
-	if(cnt >= 1) return;
-	//if(cnt >= 2) return;
-
+	if((cnt - del) >= 1) return;
 	if(OPT_KATEMURA == 1) {
 		var area_all = new Array();
 		area_all = get_area_all();
@@ -1690,7 +1718,6 @@ function setVillageFacility() {
 		}
 		
 
-//		alert("平地:" + heichi + "\n畑:" + hatake + "\n倉庫:" + souko + "\n雀:" + suzume + "\n畑が建てられる平地:" + (tmp - hatake));
 		if(heichi>0){ //平地が余っていたら
 			var tmp = heichi;
 			if(suzume != 1){ //雀がまだ建っていなければ
@@ -1719,9 +1746,7 @@ function setVillageFacility() {
 				}
 			}
 		}
-//		alert("平地:" + heichi + "\n畑:" + hatake + "\n倉庫:" + souko + "\n雀:" + suzume);
-//		return;
-//建てられるスペースがなければ通常の処理を続ける
+		//建てられるスペースがなければ通常の処理を続ける
 	}
 
 
@@ -1730,88 +1755,92 @@ function setVillageFacility() {
 	area.sort(cmp_areas);
 	area.sort(cmp_lv);
 	Reload_Flg = 0;
-	for(i=0;i<area.length;i++){
 
-    var tmpName1 = area[i].name;
-    switch (tmpName1) { 
-        case "村":
-        case "城":
-        case "砦":
-			tmpName1  = "拠点";              //
-			chkFlg = 1;
-			break;
-    }
-//		alert(tmpName1 + " : " + parseInt(OPT_CHKBOXLV[OPT_FNID[tmpName1]]) );
-		if(parseInt(area[i].lv) >= parseInt(OPT_CHKBOXLV[OPT_FNID[tmpName1]])){
-			continue;
-		} //指定Lv以上ならメインに戻る
-		//建築物名分回す
-		OPT_FUC_NAME.push("村","城","砦");
-		if(OPT_CHKBOX[0] == 1) {
-			OPT_CHKBOX.push(1,1,1);
-			OPT_CHKBOXLV.push(OPT_CHKBOXLV[0],OPT_CHKBOXLV[0],OPT_CHKBOXLV[0]);
-		} else {
-			OPT_CHKBOX.push(0,0,0);
-			OPT_CHKBOXLV.push(0,0,0);
+	// 拠点の状況を調査（削除中なら処理しない）
+	j$.get("http://"+HOST+"/facility/facility.php?x=3&y=3#ptop",function(x){
+		var htmldoc = document.createElement("html");
+	        htmldoc.innerHTML = x;
+		var rmtime = htmldoc.innerHTML.match(/(村を削除中です。|砦を削除中です。)[^\d]*(\d+-\d+-\d+ \d+:\d+:\d+)に完了します。/);
+		if (rmtime) {
+			// 削除中のため何もしない
+			return;
 		}
-		OPT_CHKBOX.push
-		for(var ii=0;ii<OPT_FUC_NAME.length;ii++){
-			//ソートしたLvの低い順に比較する
-			if(area[i].name == OPT_FUC_NAME[ii]){
-				//建築指示が有るか確認する。
-				if(parseInt(OPT_CHKBOX[ii]) == 1){
 
-					if(parseInt(area[i].lv) >= parseInt(OPT_CHKBOXLV[ii])){
-						break;
+		for(i=0;i<area.length;i++){
+			var tmpName1 = area[i].name;
+			switch (tmpName1) { 
+				case "村":
+				case "城":
+				case "砦":
+					tmpName1  = "拠点";              //
+					chkFlg = 1;
+					break;
+			}
+
+			if(parseInt(area[i].lv) >= parseInt(OPT_CHKBOXLV[OPT_FNID[tmpName1]])){
+				continue;
+			} //指定Lv以上ならメインに戻る
+			//建築物名分回す
+			OPT_FUC_NAME.push("村","城","砦");
+			if(OPT_CHKBOX[0] == 1) {
+				OPT_CHKBOX.push(1,1,1);
+				OPT_CHKBOXLV.push(OPT_CHKBOXLV[0],OPT_CHKBOXLV[0],OPT_CHKBOXLV[0]);
+			} else {
+				OPT_CHKBOX.push(0,0,0);
+				OPT_CHKBOXLV.push(0,0,0);
+			}
+			OPT_CHKBOX.push
+			for(var ii=0;ii<OPT_FUC_NAME.length;ii++){
+				//ソートしたLvの低い順に比較する
+				if(area[i].name == OPT_FUC_NAME[ii]){
+					//建築指示が有るか確認する。
+					if(parseInt(OPT_CHKBOX[ii]) == 1){
+						if(parseInt(area[i].lv) >= parseInt(OPT_CHKBOXLV[ii])){
+							break;
+						}
+
+						//建築に必要な資源が有るかどうかチェック
+						var ret = Chek_Sigen(area[i]);
+						if(ret == 1){
+							//30分後にリロードするかどうか
+							Reload_Flg = 1;
+							break;
+						}
+
+						var Temp = area[i].xy.split(",");
+						var c = {};
+						if( (del != 0) && (parseInt(Temp[0]) == delX) && (parseInt(Temp[1]) == delY) ){
+							// 削除施設とレベルアップ施設が一致したらスキップ
+							continue;
+						}
+						// 拠点以外のレベルアップ処理
+						c['x']=parseInt(Temp[0]);
+						c['y']=parseInt(Temp[1]);
+						c['village_id']=getVillageID(vId);
+						c['ssid']=j$.cookie('SSID');						
+						j$.post("http://"+HOST+"/facility/build.php",c,function(){});
+						var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
+
+						GM_setValue(HOST+PGNAME+"OPT_BUILD_VID" , getVillageID(vId) );
+						var nowTime = new Date();
+						Reload_Flg = 0;
+						return;
 					}
-
-					//建築に必要な資源が有るかどうかチェック
-					var ret = Chek_Sigen(area[i]);
-					if(ret == 1){
-						//30分後にリロードするかどうか
-						Reload_Flg = 1;
-						break;
-					}
-
-					var Temp = area[i].xy.split(",");
-
-					var c = {};
-					c['x']=parseInt(Temp[0]);
-					c['y']=parseInt(Temp[1]);
-					c['village_id']=getVillageID(vId);
-					c['ssid']=j$.cookie('SSID');						
-					j$.post("http://"+HOST+"/facility/build.php",c,function(){});
-					var tid=setTimeout(function(){location.reload(false);},INTERVAL);
-
-/*
-					var mURL = LVUPLINK;
-					mURL = mURL.replace(URL_SITE,HOST);
-					mURL = mURL.replace(URL_X,Temp[0]);
-					mURL = mURL.replace(URL_Y,Temp[1]);
-					mURL = mURL.replace(URL_viID,getVillageID(vId));
-					mURL = mURL.replace(URL_viSSID,j$.cookie('SSID'));						// 2012.04.24 ssid 追加
-					var tid=setTimeout(function(){location.href = mURL;},INTERVAL);
-*/
-
-			        GM_setValue(HOST+PGNAME+"OPT_BUILD_VID" , getVillageID(vId) );
-					var nowTime = new Date();
-					Reload_Flg = 0;
-					return;
 				}
 			}
 		}
-	}
+	});
+
 	
 	if(Reload_Flg == 1){
 		//10分後にリロードし、再度建築できるかチェックする。
-		var tid=setTimeout(function(){location.reload();},60000);
+		var tid=unsafeWindow.setTimeout(function(){location.reload();},60000);
 	}
 
 }
 
 // @@@@ add 2011.09.06 宿舎(畑) 自動ビルド＆スクラッチ
 function setVillageFacility2() {
-//	console.log("===== Start setVillageFacility2 ================================================================================");
 	var cnt=0;
 	var del=0;
 	var delX = 0;
@@ -1821,7 +1850,6 @@ function setVillageFacility2() {
 	var xyElem = document.evaluate('//*[@id="basepoint"]/span[@class="xy"]',
 		document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 	vId = trim(xyElem.snapshotItem(0).innerHTML);
-	//alert(vId);
 	
 	//建設情報を取得
 	var actionsElem = document.evaluate('//*[@id="actionLog"]/ul/li',
@@ -1832,7 +1860,6 @@ function setVillageFacility2() {
 		//ステータス
 		var buildStatusElem = document.evaluate('./span[@class="buildStatus"]/a',
 			paItem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-		//alert(buildStatusElem);
 		if (buildStatusElem.snapshotLength > 0) {
 			//施設建設数
 			cnt++;
@@ -1900,7 +1927,6 @@ function setVillageFacility2() {
 				if ((area[i].name == TargetName) && (parseInt(area[i].lv) >= OPT_MAXLV)) {
 					// 削除
 					var Temp = area[i].xy.split(",");
-//					alert("特殊 削除 :" + TargetName + " Lv:" + area[i].lv + " (" + Temp[0] + "," + Temp[1] + ")");
 					DeleteFacility(Temp[0],Temp[1]);
 					JSSleep(2);
 					Reload_Flg = 0;
@@ -1913,7 +1939,6 @@ function setVillageFacility2() {
 				if ((area[i].name == TargetName) && (parseInt(area[i].lv) == OPT_MAXLV)) {
 					// 削除
 					var Temp = area[i].xy.split(",");
-//					alert("通常 削除 :" + TargetName + " Lv:" + area[i].lv + " (" + Temp[0] + "," + Temp[1] + ")");
 					DeleteFacility(Temp[0],Temp[1]);
 					JSSleep(2);
 					Reload_Flg = 0;
@@ -1924,7 +1949,6 @@ function setVillageFacility2() {
 	}
 
 	area.sort(cmp_lv2);
-	//alert(actionsElem.snapshotLength);
 	//建設予約ができるかどうか
 	if((cnt - del) >= 1) return;
 	//if(cnt == 2) return;
@@ -1955,8 +1979,6 @@ function setVillageFacility2() {
 
 	Reload_Flg = 0;
 	for(i=0;i<area.length;i++){
-//		alert(area[i].name + ":" + area[i].lv + ":" + area[i].xy);
-		//alert(parseInt(area[i].lv) + "::" + parseInt(OPT_MAX_LV));
 
 		if( OPT_SorH == "DD" ){
 			if((area[i].name != "宿舎") && (area[i].name != "平地")){
@@ -2015,7 +2037,7 @@ function setVillageFacility2() {
 					c['village_id']=getVillageID(vId);
 					c['ssid']=j$.cookie('SSID');
 					j$.post("http://"+HOST+"/facility/build.php",c,function(){});
-					var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+					var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 				} else {
 					if( OPT_SorH == "DD" ){
 						c['x']=parseInt(Temp[0]);
@@ -2024,7 +2046,7 @@ function setVillageFacility2() {
 						c['village_id']=getVillageID(vId);
 						c['ssid']=j$.cookie('SSID');
 						j$.post("http://"+HOST+"/facility/build.php",c,function(){});
-						var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+						var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 					} else {
 						c['x']=parseInt(Temp[0]);
 						c['y']=parseInt(Temp[1]);
@@ -2032,7 +2054,7 @@ function setVillageFacility2() {
 						c['village_id']=getVillageID(vId);
 						c['ssid']=j$.cookie('SSID');						
 						j$.post("http://"+HOST+"/facility/build.php",c,function(){});
-						var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+						var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 					}
 				}
 		        GM_setValue(HOST+PGNAME+"OPT_BUILD_VID" , getVillageID(vId) );
@@ -2044,7 +2066,7 @@ function setVillageFacility2() {
 	
 	if(Reload_Flg == 1){
 		//30分後にリロードし、再度建築できるかチェックする。
-		var tid=setTimeout(function(){location.reload();},1800000);
+		var tid=unsafeWindow.setTimeout(function(){location.reload();},1800000);
 	}
 
 	return;
@@ -2060,7 +2082,6 @@ function get_area(){
 		if(results.snapshotItem(i).alt.match(/(.*?)\s.*?(\d+)/)){
 			var strURL = results.snapshotItem(i).href;
 			area[n] = new lv_sort(RegExp.$1,RegExp.$2,getURLxy(strURL));
-			//alert(area[n].xy);
 			n++;
 		}
 	}
@@ -2073,7 +2094,6 @@ function get_area_all(){
 	for(var i=0,n=0; i<results.snapshotLength; i++){
 		var strURL = results.snapshotItem(i).href;
 		area[n] = new areas(results.snapshotItem(i).alt,getURLxy(strURL));
-		//alert(area[n].xy + ":" + area[n].name);
 		n++;
 	}
 	return area;
@@ -2081,7 +2101,6 @@ function get_area_all(){
 
 //施設建設
 function createFacility(f, area){
-//	alert("createFacility");
 	area.sort(cmp_areas);
 	for(var i=0;i<area.length;i++){
 		if(area[i].name == "平地"){ //一番最初に見つかった平地に建設
@@ -2094,7 +2113,7 @@ function createFacility(f, area){
 			mURL = mURL.replace(URL_viID,getVillageID(vId));
 			mURL = mURL.replace(URL_fID,f);
 			mURL = mURL.replace(URL_viSSID,j$.cookie('SSID'));							// 2012.04.24 ssid 追加
-			var tid=setTimeout(function(){location.href = mURL;},INTERVAL);
+			var tid=unsafeWindow.setTimeout(function(){location.href = mURL;},INTERVAL);
 */
 			var c = {};
 			c['x']=parseInt(Temp[0]);
@@ -2103,7 +2122,7 @@ function createFacility(f, area){
 			c['id']=f;
 			c['ssid']=j$.cookie('SSID');						
 			j$.post("http://"+HOST+"/facility/build.php",c,function(){});
-			var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+			var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 			return;
 		}
 	}
@@ -2121,22 +2140,21 @@ function cmp_areas(a,b){
 
 // 次拠点移動
 function forwardNextVillage(){
-
 	// 巡回停止中ならスキップ 2012.01.24
 	if (GM_getValue(HOST+PGNAME+"AutoFlg", true) == false) { return; }
 
 	var nowTime = new Date();
 	var nextTime = getNextTime(location.hostname, nowTime);
 	var waitTime = nextTime - nowTime;
+	var roundTime = 0;
 
 // @@ add 2011.10.04 @@
 
 	clearInterval(tidMain2);
 
-	if ( tidMain2 == undefined ) {
-		if ((ShopFlg == true) && (ShopURL != "")) {
-			tidMain2=setTimeout(function(){location.href = ShopURL;},10 * 1000);
-		}
+	if ((ShopFlg == true) && (ShopURL != "")) {
+		roundTime = 10 * 1000;
+		tidMain2=unsafeWindow.setTimeout(function(){location.href = ShopURL;},roundTime);
 	}
 
 	// 建築済みで次建築がセットされていない未巡回の拠点への移動(２拠点同時に完了した場合に使う処理)
@@ -2171,8 +2189,8 @@ function forwardNextVillage(){
 						var vcURL = villages[i][IDX_URL];
 							if(vcURL!=undefined){
 								saveVillages(HOST+PGNAME, villages);
-								tidMain2=setTimeout(function(){location.href = vcURL;},5 * 1000);
-//								log("■ 建築終了 ■ " + generateDateString2(nowTime) + " : " + villages[i][IDX_XY] + " URL :" + vcURL);
+								roundTime = 5 * 1000;
+								tidMain2=unsafeWindow.setTimeout(function(){location.href = vcURL;},roundTime);
 							}
 					}
 				}
@@ -2206,20 +2224,25 @@ function forwardNextVillage(){
 		if(vcURL!=undefined){
 			if (nextURL == "") {
 				// 次回建築完了予定がない場合は通常巡回処理
-				tidMain2=setTimeout(function(){location.href = vcURL;},parseInt(OPT_ROUND_TIME1) * 1000);
+				roundTime = parseInt(OPT_ROUND_TIME1) * 1000;
+				tidMain2=unsafeWindow.setTimeout(function(){location.href = vcURL;},roundTime);
 			} else {
 				if (parseInt(OPT_ROUND_TIME1) * 1000 > nTime) {
 					// 巡回時間より前に建築が終わる拠点がある場合
 					// 2011.12.06 即時変更をやめて10秒後に修正
-//					tidMain2=setTimeout(function(){location.href = nextURL;},(nextTime - nowTime));
-					tidMain2=setTimeout(function(){location.href = nextURL;},10 * 1000);
+//					tidMain2=unsafeWindow.setTimeout(function(){location.href = nextURL;},(nextTime - nowTime));
+//					tidMain2=unsafeWindow.setTimeout(function(){location.href = nextURL;},10 * 1000);
+					roundTime = (nextTime - nowTime + 10000);
+					tidMain2=unsafeWindow.setTimeout(function(){location.href = nextURL;},roundTime);
 				} else {
 					// 通常巡回処理
-					tidMain2=setTimeout(function(){location.href = vcURL;},parseInt(OPT_ROUND_TIME1) * 1000);
+					roundTime = parseInt(OPT_ROUND_TIME1) * 1000;
+					tidMain2=unsafeWindow.setTimeout(function(){location.href = vcURL;},roundTime);
 				}
 			}
 		}
 	}
+debugLog("nTime:" + nTime / 1000 + "sec  RoundTime:" + (roundTime / 1000) + "sec  forwardNextVillage:" + vcURL + " " + roundTime);
 }
 
 //比較する関数
@@ -2238,8 +2261,7 @@ function nextVillageURL(vId2){
 			chkNextVID.push(villages[i][IDX_URL]);
 	    }
 	}
-  //console.log(location.hostname +" 確認："+chkNextVID);
-    
+
 	// 現在の拠点のインデックスを検索 2012.01.24 逆順処理追加
 	for(var i=0; i<chkNextVID.length;i++){
 		var url = chkNextVID[i];
@@ -2312,7 +2334,6 @@ function getVillageID(vId){
 	}
 }
 function getURLxy(strURL){
-	//alert(strURL);
 	if(strURL == ""){ return "";}
 	var strTemp = "";
 	strTemp = strURL;
@@ -2325,96 +2346,53 @@ function getURLxy(strURL){
 
 //リンクHTML追加
 function addOpenLinkHtml() {
-	// ---- LinkType kiri ----
-	if(LinkType == 1) {
-		var sidebar = d.evaluate('//*[@id="status_left"]', d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-		var ABLink = d.evaluate('//H1[@class="siteID"]', d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-
-		var openLink = d.createElement("a");
-		openLink.id = "Auto_Bilder";
-		openLink.href = "javascript:void(0);";
-
-		// mixi鯖判定
-		var ifmixi = d.evaluate('//*[@id="supportNavi"]', d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-		if ( ifmixi.snapshotLength ) {
-	//		sidebar = d.evaluate('//*[@id="statusIcon"]',d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-			openLink.innerHTML = "<nobr><img src='http://img.mixi.jp/img/basic/favicon.ico' title='Auto Bilder'></nobr>";
-		} else {
-			openLink.innerHTML = "<nobr><img src='http://h1.3gokushi.jp/20110811-01/extend_project/w945/favicon.ico' title='Auto Bilder'></nobr>";
-			// ---- 資源の桁数が増えた時の改行防止 ----
-			var sidebar2 = d.evaluate('//*[@id="status_right"]', d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-			sidebar2.snapshotItem(0).style.width = "Auto";
-		}
-
-		openLink.style.color = "#3399CC";
-		openLink.style.textDecoration = "none";
-		openLink.addEventListener("click", function() {openIniBilderBox()}, true);
-		sidebar.snapshotItem(0).appendChild(openLink);
-		sidebar.snapshotItem(0).insertBefore(openLink,sidebar.snapshotItem(0).firstChild);
-
-		// リンク位置をブラウザ三国志ロゴに配置 by 霧 2011.05.23
-		ABLink.snapshotItem(0).appendChild(openLink);
-		ABLink.snapshotItem(0).style.width = "76px";
-		ABLink.snapshotItem(0).style.height = "46px";
-
-		ABLink.snapshotItem(0).style.position = "relative"; // チェック用
-		openLink.style.position = "absolute";
-		openLink.style.bottom = "1px";
-		openLink.style.right = "1px";
+	if (location.hostname[0] == "s" || location.hostname[0] == "h" || location.hostname[0] == "p") {
+//			var sidebar = d.evaluate('//*[@class="copyright"]',d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		var sidebar = d.evaluate('//*[@class="sideBoxHead"]/h3/strong',d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	} else {
+		var sidebar = d.evaluate('//a[@title="拠点"]',d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 	}
-	// ---- LynkType 5zen ----
-	else if(LinkType == 0) {
-		if (location.hostname[0] == "s" || location.hostname[0] == "h") {
-			var sidebar = d.evaluate('//*[@class="copyright"]',d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-		} else {
-			var sidebar = d.evaluate('//*[@title="拠点"]',d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-		}
-	 	if (sidebar.snapshotLength == 0){
-		    sidebar = d.evaluate('//*[@class="xy"]',d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-		    if (sidebar.snapshotLength == 0) return;
-		    isMixi = false;
-		}
-		
-		//自動移動リンク
-		var openLink = d.createElement("span");
-		openLink.id = "Auto_Bilder";
-		openLink.href = "javascript:void(0);";
-		openLink.style.marginTop = "0px";
-		openLink.style.marginLeft = "0px";
-		openLink.innerHTML = " [自動建築]";
-		if (location.hostname[0] == "s" || location.hostname[0] == "h") {
-			openLink.style.color = "#000000";
-		} else {
-			openLink.style.color = "#FFFFFF";
-		}
-		openLink.style.cursor = "pointer";
+ 	if (sidebar.snapshotLength == 0){
+	    sidebar = d.evaluate('//*[@class="xy"]',d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	    if (sidebar.snapshotLength == 0) return;
+	    isMixi = false;
+	}
+	
+	//自動移動リンク
+	var openLink = d.createElement("a");
+	openLink.id = "Auto_Bilder";
+	openLink.href = "javascript:void(0);";
+	openLink.style.marginTop = "0px";
+	openLink.style.marginLeft = "0px";
+	openLink.innerHTML = " [自動建築]";
+/*
+	if (location.hostname[0] == "s" || location.hostname[0] == "h") {
+		openLink.style.color = "#000000";
+	} else {
+		openLink.style.color = "#FFFFFF";
+	}
+*/
+	openLink.style.color = "#FFFFFF";
+	openLink.style.cursor = "pointer";
 
-		openLink.addEventListener("click", function() {
-			closeIniBilderBox();
-			openIniBilderBox();
-		}, true);
+	openLink.addEventListener("click", function() {
+		closeIniBilderBox();
+		openIniBilderBox();
+	}, true);
+	if (location.hostname[0] == "s" || location.hostname[0] == "h") {
+		sidebar.snapshotItem(1).appendChild(openLink);
+	} else {
 		sidebar.snapshotItem(0).appendChild(openLink);
 	}
 }
 
 //建築設定画面を開く
 function openIniBilderBox() {
-	//closeIniBilderBox();
-	// ＠＠
-	//var vcURL = nextVillageURL(getVillageID(vId));
-	//var tid=setTimeout(function(){location.href = "";},);
-	// ＠＠
-	//alert("openIniBilderBox : " + tidMain2);
-	//clearInterval(tidMain2);
 	addIniBilderHtml();
 }
 
 //建築設定画面を閉じる
 function closeIniBilderBox() {
-	// ＠＠
-	//alert("設定CLOSE");
-	//forwardNextVillage();
-	// ＠＠
 	deleteIniBilderHtml();
 	deleteIniBilderFrameHtml();
 }
@@ -2515,8 +2493,18 @@ function clearInifacBox() {
 	var checkbox = $a('//input[@id="OPT_DOME18"]'); checkbox[0].checked = false; // 富国強兵
 	var checkbox = $a('//input[@id="OPT_DOME19"]'); checkbox[0].checked = false; // 豊穣
 	var checkbox = $a('//input[@id="OPT_DOME20"]'); checkbox[0].checked = false; // 美玉歌舞
-	var checkbox = $a('//input[@id="OPT_DOME21"]'); checkbox[0].checked = false; // 呉の治世
-	var checkbox = $a('//input[@id="OPT_DOME22"]'); checkbox[0].checked = false; // 王佐の才
+	var checkbox = $a('//input[@id="OPT_DOME21"]'); checkbox[0].checked = false; // 恵風
+	var checkbox = $a('//input[@id="OPT_DOME22"]'); checkbox[0].checked = false; // 人選眼力
+	var checkbox = $a('//input[@id="OPT_DOME23"]'); checkbox[0].checked = false; // 呉の治世
+	var checkbox = $a('//input[@id="OPT_DOME24"]'); checkbox[0].checked = false; // 王佐の才
+	var checkbox = $a('//input[@id="OPT_DOME25"]'); checkbox[0].checked = false; // 練兵訓練
+	var checkbox = $a('//input[@id="OPT_DOME26"]'); checkbox[0].checked = false; // 　　修練
+	var checkbox = $a('//input[@id="OPT_DOME27"]'); checkbox[0].checked = false; // 厩舎訓練
+	var checkbox = $a('//input[@id="OPT_DOME28"]'); checkbox[0].checked = false; // 　　修練
+	var checkbox = $a('//input[@id="OPT_DOME29"]'); checkbox[0].checked = false; // 弓兵訓練
+	var checkbox = $a('//input[@id="OPT_DOME30"]'); checkbox[0].checked = false; // 　　修練
+	var checkbox = $a('//input[@id="OPT_DOME31"]'); checkbox[0].checked = false; // 兵舎訓練
+	var checkbox = $a('//input[@id="OPT_DOME32"]'); checkbox[0].checked = false; // 　　修練
 	// 糧村オプション
 	var checkbox = $a('//input[@id="OPT_KATEMURA"]');  checkbox[0].checked = false; // 糧村化
 }
@@ -2980,8 +2968,8 @@ function addIniBilderHtml() {
 	selectBox.value = GM_getValue(HOST+PGNAME+"OPT_ROUND_TIME1", LOAD_ROUND_TIME_60);
 	OPT_ROUND_TIME1 = GM_getValue(HOST+PGNAME+"OPT_ROUND_TIME1", LOAD_ROUND_TIME_60);
 
-	// 2012.01.11 巡回時間に 10 ~ 60sec 追加
-	OPT_ROUND_TIME1 = parseInt(OPT_ROUND_TIME1) + Math.floor( Math.random() * 50 ) + 10;
+	// 2012.01.11 巡回時間に 1 ~ 10sec 追加
+	OPT_ROUND_TIME1 = parseInt(OPT_ROUND_TIME1) + Math.floor( Math.random() * 10 );
 
 	// 次回表示
 	var nowTime = new Date();
@@ -2997,6 +2985,27 @@ function addIniBilderHtml() {
 		ABContainer.appendChild(nextTimeBox);
 	}
 
+	// 変換用市場表示
+	var shoplist = cloadData(HOST+"ShopList","[]",true,true);
+	if (shoplist.length != 0) {
+		shoplist.sort( function(a,b) { if (a[1] < b[1]) return 1; if (a[1] > b[1]) return -1; return 0;});
+		var villages = loadVillages(HOST+PGNAME);
+		var nextIndex = -1;
+		for(var i=0; i<villages.length;i++){
+	    	if(shoplist[0].vId == villages[i][IDX_XY]){
+	            nextIndex = i;
+		        break;
+		    }
+		}
+		if (nextIndex != -1) {
+			var ShopBox = document.createElement("div");
+			ShopBox.style.color = "#90EE90";
+			ShopBox.style.backgroundColor = "#000000";
+			ShopBox.style.verticalAlign = "middle";
+			ShopBox.innerHTML = "　変換用市場 : " + villages[nextIndex][IDX_BASE_NAME] + "　" + villages[nextIndex][IDX_XY] + "　市場Lv : " + shoplist[0].lv;
+			ABContainer.appendChild(ShopBox);
+		}
+	}
 	//document.getElementById("dispMode" + types[i]).value;
 
 	//拠点設定リンクの作成
@@ -3080,7 +3089,7 @@ function addIniBilderHtml() {
 			actionsTd.style.backgroundColor = COLOR_BACK;
 			actionsTd.style.border = "solid 1px black";
 			actionsTd.style.padding = "3px";
-			actionsTd.style.width = "300px";
+			actionsTd.style.width = "330px";
 			tr.appendChild(actionsTd);
 			var actions = sortAction(villages[i][IDX_ACTIONS]);
 			var nowTime = new Date();
@@ -3121,7 +3130,7 @@ function addIniBilderHtml() {
 	//拠点作成状況の表示 2012.04.09
 	var tbl2 = d.createElement("table");
 	tbl2.style.border ="0px";
-	var lists = cloadData("ReserveList", "[]", true, true);
+	var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 	for(var i=0 ; i<lists.length ; i++) {
 		var vId = "(" + lists[i].x + "," + lists[i].y + ")";
 
@@ -3140,7 +3149,7 @@ function addIniBilderHtml() {
 		actionsTd.style.backgroundColor = COLOR_BACK;
 		actionsTd.style.border = "solid 1px black";
 		actionsTd.style.padding = "3px";
-		actionsTd.style.width = "415px";
+		actionsTd.style.width = "445px";
 
 		tr.appendChild(actionsTd);
 
@@ -3213,11 +3222,11 @@ function addIniBilderHtml() {
 
 	function delList(x, y)
 	{
-		var lists = cloadData("ReserveList", "[]", true, true);
+		var lists = cloadData(HOST+"ReserveList", "[]", true, true);
 		for(var i=0 ; i<lists.length ; i++) {
 			if(lists[i].x == x && lists[i].y == y ) {
 				lists.splice(i,1);
-				csaveData( "ReserveList", lists, true, true );
+				csaveData(HOST+"ReserveList", lists, true, true );
 
 				//更新後内容で表示
 				closeIniBilderBox()
@@ -3255,21 +3264,16 @@ function SetPrice(price){
 
 // 拠点巡回保存
 function saveAVCBox(){
-	// ＠＠
-	//alert("設定CLOSE");
-	//forwardNextVillage();
-	// ＠＠
 	OPT_CHKBOX_AVC = cgetCheckBoxValue($("OPT_CHKBOX_AVC"));
 	GM_setValue(HOST+PGNAME+"AVC", OPT_CHKBOX_AVC);
-//	var tid=setTimeout(function(){location.reload();},INTERVAL);
 }
 function saveAVCBox2(tVID,flg){
 	//OPT_CHKBOX_AVC = cgetCheckBoxValue($("OPT_CHKBOX_AVC"));
 	//GM_setValue(HOST+PGNAME+"AVC", OPT_CHKBOX_AVC);
 	GM_setValue(HOST+PGNAME+"AVC"+"_"+tVID, flg);
 	
-	//var tid=setTimeout(function(){location.reload();},INTERVAL);
-	tidMain=setTimeout(function(){location.reload(false);},INTERVAL);
+	//var tid=unsafeWindow.setTimeout(function(){location.reload();},INTERVAL);
+	tidMain=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 }
 
 //施設建設必要資源読込
@@ -3485,35 +3489,53 @@ function addInifacHtml(vId) {
 
 //	ABfacContainer.appendChild(Domestic_Box);
 
-	ccreateCheckBox(td21, "OPT_DOME1" , OPT_DOME[1] , " " + DASkill[1] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[1]  + "）を発動します。", 0);
-	ccreateCheckBox(td22, "OPT_DOME2" , OPT_DOME[2] , " " + DASkill[2] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[2]  + "）を発動します。", 0);
-	ccreateCheckBox(td23, "OPT_DOME3" , OPT_DOME[3] , " " + DASkill[3] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[3]  + "）を発動します。", 0);
+	ccreateCheckBox(td21, "OPT_DOME1" , OPT_DOME[1] , " " + DASkill[1]  + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[1]  + "）を発動します。", 0);
+	ccreateCheckBox(td22, "OPT_DOME2" , OPT_DOME[2] , " " + DASkill[2]  + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[2]  + "）を発動します。", 0);
+	ccreateCheckBox(td23, "OPT_DOME16", OPT_DOME[16], " " + DASkill[16] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[16]  + "）を発動します。", 0);
 	ccreateCheckBox(td24, "OPT_DOME12", OPT_DOME[12], " " + DASkill[12] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[12] + "）を発動します。", 0);
 	ccreateCheckBox(td25, "OPT_DOME13", OPT_DOME[13], " " + DASkill[13] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[13] + "）を発動します。", 0);
 
-	ccreateCheckBox(td21, "OPT_DOME4" , OPT_DOME[4] , " " + DASkill[4] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[4]  + "）を発動します。", 0);
-	ccreateCheckBox(td22, "OPT_DOME5" , OPT_DOME[5] , " " + DASkill[5] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[5]  + "）を発動します。", 0);
-	ccreateCheckBox(td23, "OPT_DOME6" , OPT_DOME[6] , " " + DASkill[6] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[6]  + "）を発動します。", 0);
+	ccreateCheckBox(td21, "OPT_DOME4" , OPT_DOME[4] , " " + DASkill[4]  + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[4]  + "）を発動します。", 0);
+	ccreateCheckBox(td22, "OPT_DOME5" , OPT_DOME[5] , " " + DASkill[5]  + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[5]  + "）を発動します。", 0);
+	ccreateCheckBox(td23, "OPT_DOME17", OPT_DOME[17], " " + DASkill[17] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[17]  + "）を発動します。", 0);
 	ccreateCheckBox(td24, "OPT_DOME14", OPT_DOME[14], " " + DASkill[14] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[14] + "）を発動します。", 0);
 	ccreateCheckBox(td25, "OPT_DOME15", OPT_DOME[15], " " + DASkill[15] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[15] + "）を発動します。", 0);
 
-	ccreateCheckBox(td21, "OPT_DOME7" , OPT_DOME[7] , " " + DASkill[7] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[7]  + "）を発動します。", 0);
-	ccreateCheckBox(td22, "OPT_DOME8" , OPT_DOME[8] , " " + DASkill[8] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[8]  + "）を発動します。", 0);
-	ccreateCheckBox(td23, "OPT_DOME9" , OPT_DOME[9] , " " + DASkill[9] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[9]  + "）を発動します。", 0);
+	ccreateCheckBox(td21, "OPT_DOME7" , OPT_DOME[7] , " " + DASkill[7]  + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[7]  + "）を発動します。", 0);
+	ccreateCheckBox(td22, "OPT_DOME8" , OPT_DOME[8] , " " + DASkill[8]  + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[8]  + "）を発動します。", 0);
+	ccreateCheckBox(td23, "OPT_DOME18", OPT_DOME[18], " " + DASkill[18] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[18]  + "）を発動します。", 0);
 	ccreateCheckBox(td24, "OPT_DOME19", OPT_DOME[19], " " + DASkill[19], "この都市に来たら、自動的に内政スキル（" + DASkill[19] + "）を発動します。", 0);
 	ccreateCheckBox(td25, "OPT_DOME20", OPT_DOME[20], " " + DASkill[20], "この都市に来たら、自動的に内政スキル（" + DASkill[20] + "）を発動します。", 0);
 
-	ccreateCheckBox(td21, "OPT_DOME10", OPT_DOME[10], " " + DASkill[10] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[10]  + "）を発動します。", 0);
-	ccreateCheckBox(td22, "OPT_DOME11", OPT_DOME[11], " " + DASkill[11] + "　", "この都市に来たら、自動的に内政スキル（" + DASkill[11] + "）を発動します。", 0);
-	ccreateCheckBox(td23, "OPT_DOME16", OPT_DOME[16], " " + DASkill[16], "この都市に来たら、自動的に内政スキル（" + DASkill[16]  + "）を発動します。", 0);
-	ccreateCheckBox(td24, "OPT_DOME17", OPT_DOME[17], " " + DASkill[17], "この都市に来たら、自動的に内政スキル（" + DASkill[17]  + "）を発動します。", 0);
-	ccreateCheckBox(td25, "OPT_DOME18", OPT_DOME[18], " " + DASkill[18], "この都市に来たら、自動的に内政スキル（" + DASkill[18]  + "）を発動します。", 0);
+	ccreateCheckBox(td21, "OPT_DOME10", OPT_DOME[10], " " + DASkill[10], "この都市に来たら、自動的に内政スキル（" + DASkill[10]  + "）を発動します。", 0);
+	ccreateCheckBox(td22, "OPT_DOME11", OPT_DOME[11], " " + DASkill[11], "この都市に来たら、自動的に内政スキル（" + DASkill[11] + "）を発動します。", 0);
+		ccreateText(td23, "Dummy" , "　", 0);
+		ccreateText(td24, "Dummy" , "　", 0);
+		ccreateText(td25, "Dummy" , "　", 0);
 
-	ccreateText    (td21, "Dummy" , "　", 0);
-	ccreateText    (td22, "Dummy" , "　", 0);
-	ccreateText    (td23, "Dummy" , "　", 0);
-	ccreateCheckBox(td24, "OPT_DOME21", OPT_DOME[21], " " + DASkill[21], "この都市に来たら、自動的に内政スキル（" + DASkill[21]  + "）を発動します。", 0);
-	ccreateCheckBox(td25, "OPT_DOME22", OPT_DOME[22], " " + DASkill[22], "この都市に来たら、自動的に内政スキル（" + DASkill[22]  + "）を発動します。", 0);
+	ccreateCheckBox(td21, "OPT_DOME25", OPT_DOME[25], " " + DASkill[25], "この都市に来たら、自動的に内政スキル（" + DASkill[25]  + "）を発動します。", 0);
+	ccreateCheckBox(td22, "OPT_DOME27", OPT_DOME[27], " " + DASkill[27], "この都市に来たら、自動的に内政スキル（" + DASkill[27]  + "）を発動します。", 0);
+	ccreateCheckBox(td23, "OPT_DOME29", OPT_DOME[29], " " + DASkill[29], "この都市に来たら、自動的に内政スキル（" + DASkill[29]  + "）を発動します。", 0);
+	ccreateCheckBox(td24, "OPT_DOME31", OPT_DOME[31], " " + DASkill[31], "この都市に来たら、自動的に内政スキル（" + DASkill[31]  + "）を発動します。", 0);
+	ccreateCheckBox(td25, "OPT_DOME33", OPT_DOME[33], " " + DASkill[33], "この都市に来たら、自動的に内政スキル（" + DASkill[33]  + "）を発動します。", 0);
+
+	ccreateCheckBox(td21, "OPT_DOME26", OPT_DOME[26], " " + DASkill[26], "この都市に来たら、自動的に内政スキル（" + DASkill[26]  + "）を発動します。", 0);
+	ccreateCheckBox(td22, "OPT_DOME28", OPT_DOME[28], " " + DASkill[28], "この都市に来たら、自動的に内政スキル（" + DASkill[28]  + "）を発動します。", 0);
+	ccreateCheckBox(td23, "OPT_DOME30", OPT_DOME[30], " " + DASkill[30], "この都市に来たら、自動的に内政スキル（" + DASkill[30]  + "）を発動します。", 0);
+	ccreateCheckBox(td24, "OPT_DOME32", OPT_DOME[32], " " + DASkill[32], "この都市に来たら、自動的に内政スキル（" + DASkill[32]  + "）を発動します。", 0);
+	ccreateCheckBox(td25, "OPT_DOME34", OPT_DOME[34], " " + DASkill[34], "この都市に来たら、自動的に内政スキル（" + DASkill[34]  + "）を発動します。", 0);
+
+		ccreateText(td21, "Dummy" , "　", 0);
+	ccreateCheckBox(td22, "OPT_DOME3",  OPT_DOME[3],  " " + DASkill[3], "この都市に来たら、自動的に内政スキル（" + DASkill[3]  + "）を発動します。", 0);
+	ccreateCheckBox(td23, "OPT_DOME6",  OPT_DOME[6],  " " + DASkill[6], "この都市に来たら、自動的に内政スキル（" + DASkill[6]  + "）を発動します。", 0);
+	ccreateCheckBox(td24, "OPT_DOME9",  OPT_DOME[9],  " " + DASkill[9], "この都市に来たら、自動的に内政スキル（" + DASkill[9]  + "）を発動します。", 0);
+		ccreateText(td25, "Dummy" , "　", 0);
+
+	ccreateCheckBox(td21, "OPT_DOME21", OPT_DOME[21], " " + DASkill[21], "この都市に来たら、自動的に内政スキル（" + DASkill[21]  + "）を発動します。", 0);
+	ccreateCheckBox(td22, "OPT_DOME22", OPT_DOME[22], " " + DASkill[22], "この都市に来たら、自動的に内政スキル（" + DASkill[22]  + "）を発動します。", 0);
+	ccreateCheckBox(td23, "OPT_DOME23", OPT_DOME[23], " " + DASkill[23], "この都市に来たら、自動的に内政スキル（" + DASkill[23]  + "）を発動します。", 0);
+	ccreateCheckBox(td24, "OPT_DOME24", OPT_DOME[24], " " + DASkill[24], "この都市に来たら、自動的に内政スキル（" + DASkill[24]  + "）を発動します。", 0);
+		ccreateText(td25, "Dummy" , "　", 0);
 
 	// ===== 糧変換設定 =====
 
@@ -3605,7 +3627,7 @@ function addInifacHtml(vId) {
 
 	var td510 = d.createElement("td");
 		td510.style.padding = "1px";
-		td510.appendChild( createRadioBtn ( 'td510', '宿舎ビルスク' ) );
+		td510.appendChild( createRadioBtn ( 'BS', '宿舎ビルスク' ) );
 
 	var tr511 = d.createElement("tr");
 		tr511.style.border = "solid 1px black";
@@ -3660,6 +3682,7 @@ function addInifacHtml(vId) {
 	var Soldier_Box = d.createElement("table");
 		Soldier_Box.style.border ="solid 2px black";
 		Soldier_Box.style.marginBottom = "4px";
+		Soldier_Box.style.width = "100%";
 
 	var tr800 = d.createElement("tr");
 		tr800.style.border = "solid 1px black";
@@ -3672,8 +3695,9 @@ function addInifacHtml(vId) {
 		tr81.style.fontFamily = "ＭＳ ゴシック";
 		tr81.style.border = "solid 1px black";
 		tr81.style.backgroundColor =COLOR_BACK;
+	var td81 = d.createElement("td");
+		td81.style.padding = "3px";//		td81.style.border = "solid 1px black";
 
-	var td81 = d.createElement("td");		td81.style.padding = "3px";		td81.style.border = "solid 1px black";
 	var tr811 = d.createElement("tr");
 	var td811 = d.createElement("td");		td811.style.padding = "3px";	td811.style.verticalAlign = "bottom";
 	var td812 = d.createElement("td");		td812.style.padding = "3px";	td812.style.verticalAlign = "top"; td812.style.textAlign = "center";
@@ -3692,10 +3716,12 @@ function addInifacHtml(vId) {
 
 	Soldier_Box.appendChild(tr800);
 		tr800.appendChild(td800);
+
 	Soldier_Box.appendChild(tr81);
 		tr81.appendChild(td81);
 		td81.appendChild(tr811);
-			tr811.appendChild(td811);
+
+		tr811.appendChild(td811);
 		tr811.appendChild(td812);
 		tr811.appendChild(td813);
 		tr811.appendChild(td814);
@@ -3711,56 +3737,47 @@ function addInifacHtml(vId) {
 
 //	ABfacContainer.appendChild(Soldier_Box);
 
+	ccreateText(td812, "dummy", "剣兵", 0 );
+	ccreateText(td813, "dummy", "槍兵", 0 );
+	ccreateText(td814, "dummy", "弓兵", 0 );
+	ccreateText(td815, "dummy", "騎兵", 0 );
+	ccreateText(td816, "dummy", "矛槍兵", 0 );
+	ccreateText(td817, "dummy", "弩兵", 0 );
+	ccreateText(td818, "dummy", "近衛騎兵", 0 );
+	ccreateText(td819, "dummy", "斥候", 0 );
+	ccreateText(td820, "dummy", "斥候騎兵", 0 );
+	ccreateText(td821, "dummy", "衝車", 0 );
+	ccreateText(td822, "dummy", "投石機", 0 );
+	ccreateText(td823, "dummy", "　", 0 );
+
 	ccreateText(td811, "dummy", "　", 0 );
 	ccreateText(td811, "dummy", "　兵数上限", 0 );
 	ccreateText(td811, "dummy", "　作成単位", 0 );
 
-	ccreateText(td812, "dummy", "剣兵", 0 );
 	ccreateTextBox(td812,"OPT_SOL_MAX1", OPT_SOL_MAX[1],"","剣兵の兵数上限",8,0);
-	ccreateTextBox(td812,"OPT_SOL_ADD1", OPT_SOL_ADD[1],"","剣兵の作成単位",8,0);
-
-	ccreateText(td813, "dummy", "槍兵", 0 );
 	ccreateTextBox(td813,"OPT_SOL_MAX3", OPT_SOL_MAX[3],"","槍兵の兵数上限",8,0);
-	ccreateTextBox(td813,"OPT_SOL_ADD3", OPT_SOL_ADD[3],"","槍兵の作成単位",8,0);
-
-	ccreateText(td814, "dummy", "弓兵", 0 );
 	ccreateTextBox(td814,"OPT_SOL_MAX8", OPT_SOL_MAX[8],"","弓兵の兵数上限",8,0);
-	ccreateTextBox(td814,"OPT_SOL_ADD8", OPT_SOL_ADD[8],"","弓兵の作成単位",8,0);
-
-	ccreateText(td815, "dummy", "騎兵", 0 );
 	ccreateTextBox(td815,"OPT_SOL_MAX5", OPT_SOL_MAX[5],"","騎兵の兵数上限",8,0);
-	ccreateTextBox(td815,"OPT_SOL_ADD5", OPT_SOL_ADD[5],"","騎兵の作成単位",8,0);
-
-	ccreateText(td816, "dummy", "矛槍兵", 0 );
 	ccreateTextBox(td816,"OPT_SOL_MAX4", OPT_SOL_MAX[4],"","矛槍兵の兵数上限",8,0);
-	ccreateTextBox(td816,"OPT_SOL_ADD4", OPT_SOL_ADD[4],"","矛槍兵の作成単位",8,0);
-
-	ccreateText(td817, "dummy", "弩兵", 0 );
 	ccreateTextBox(td817,"OPT_SOL_MAX9", OPT_SOL_MAX[9],"","弩兵の兵数上限",8,0);
-	ccreateTextBox(td817,"OPT_SOL_ADD9", OPT_SOL_ADD[9],"","弩兵の作成単位",8,0);
-
-	ccreateText(td818, "dummy", "近衛騎兵", 0 );
 	ccreateTextBox(td818,"OPT_SOL_MAX7", OPT_SOL_MAX[7],"","近衛騎兵の兵数上限",8,0);
-	ccreateTextBox(td818,"OPT_SOL_ADD7", OPT_SOL_ADD[7],"","近衛騎兵の作成単位",8,0);
-
-	ccreateText(td819, "dummy", "斥候", 0 );
 	ccreateTextBox(td819,"OPT_SOL_MAX10", OPT_SOL_MAX[10],"","斥候の兵数上限",8,0);
-	ccreateTextBox(td819,"OPT_SOL_ADD10", OPT_SOL_ADD[10],"","斥候の作成単位",8,0);
-
-	ccreateText(td820, "dummy", "斥候騎兵", 0 );
 	ccreateTextBox(td820,"OPT_SOL_MAX11", OPT_SOL_MAX[11],"","斥候騎兵の兵数上限",8,0);
-	ccreateTextBox(td820,"OPT_SOL_ADD11", OPT_SOL_ADD[11],"","斥候騎兵の作成単位",8,0);
-
-	ccreateText(td821, "dummy", "衝車", 0 );
 	ccreateTextBox(td821,"OPT_SOL_MAX12", OPT_SOL_MAX[12],"","衝車の兵数上限",8,0);
-	ccreateTextBox(td821,"OPT_SOL_ADD12", OPT_SOL_ADD[12],"","衝車の作成単位",8,0);
-
-	ccreateText(td822, "dummy", "投石機", 0 );
 	ccreateTextBox(td822,"OPT_SOL_MAX13", OPT_SOL_MAX[13],"","投石機の兵数上限",8,0);
+
+	ccreateTextBox(td812,"OPT_SOL_ADD1", OPT_SOL_ADD[1],"","剣兵の作成単位",8,0);
+	ccreateTextBox(td813,"OPT_SOL_ADD3", OPT_SOL_ADD[3],"","槍兵の作成単位",8,0);
+	ccreateTextBox(td814,"OPT_SOL_ADD8", OPT_SOL_ADD[8],"","弓兵の作成単位",8,0);
+	ccreateTextBox(td815,"OPT_SOL_ADD5", OPT_SOL_ADD[5],"","騎兵の作成単位",8,0);
+	ccreateTextBox(td816,"OPT_SOL_ADD4", OPT_SOL_ADD[4],"","矛槍兵の作成単位",8,0);
+	ccreateTextBox(td817,"OPT_SOL_ADD9", OPT_SOL_ADD[9],"","弩兵の作成単位",8,0);
+	ccreateTextBox(td818,"OPT_SOL_ADD7", OPT_SOL_ADD[7],"","近衛騎兵の作成単位",8,0);
+	ccreateTextBox(td819,"OPT_SOL_ADD10", OPT_SOL_ADD[10],"","斥候の作成単位",8,0);
+	ccreateTextBox(td820,"OPT_SOL_ADD11", OPT_SOL_ADD[11],"","斥候騎兵の作成単位",8,0);
+	ccreateTextBox(td821,"OPT_SOL_ADD12", OPT_SOL_ADD[12],"","衝車の作成単位",8,0);
 	ccreateTextBox(td822,"OPT_SOL_ADD13", OPT_SOL_ADD[13],"","投石機の作成単位",8,0);
 
-	ccreateText(td823, "dummy", "　", 0 );
-	ccreateText(td823, "dummy", "　", 0 );
 	ccreateButton(td823, "作成中止", "兵士の作成単位を初期化します。", function() {clearInitSoldier()});
 
 
@@ -3780,43 +3797,27 @@ function addInifacHtml(vId) {
 
 	var tr91 = d.createElement("tr");
 		tr91.style.fontFamily = "ＭＳ ゴシック";
-	var td91 = d.createElement("td");
 		tr91.style.border = "solid 1px black";
 		tr91.style.backgroundColor =COLOR_BACK;
+	var td91 = d.createElement("td");
 		td91.style.padding = "3px";
 
 	var tr911 = d.createElement("tr");
-	var td911 = d.createElement("td");		td911.style.padding = "3px";
-		td911.style.verticalAlign = "bottom";
-	var td912 = d.createElement("td");		td912.style.padding = "3px";
-		td912.style.verticalAlign = "top";	td912.style.textAlign = "center";
-	var td913 = d.createElement("td");		td913.style.padding = "3px";
-		td913.style.verticalAlign = "top";	td913.style.textAlign = "center";
-	var td914 = d.createElement("td");		td914.style.padding = "3px";
-		td914.style.verticalAlign = "top";	td914.style.textAlign = "center";
-	var td915 = d.createElement("td");		td915.style.padding = "3px";
-		td915.style.verticalAlign = "top";	td915.style.textAlign = "center";
-	var td916 = d.createElement("td");		td916.style.padding = "3px";
-		td916.style.verticalAlign = "top";	td916.style.textAlign = "center";
-	var td917 = d.createElement("td");		td917.style.padding = "3px";
-		td917.style.verticalAlign = "top";	td917.style.textAlign = "center";
-	var td918 = d.createElement("td");		td918.style.padding = "3px";
-		td918.style.verticalAlign = "top";	td918.style.textAlign = "center";
-	var td919 = d.createElement("td");		td919.style.padding = "3px";
-		td919.style.verticalAlign = "top";	td919.style.textAlign = "center";
-	var td920 = d.createElement("td");		td920.style.padding = "3px";
-		td920.style.verticalAlign = "top";	td920.style.textAlign = "center";
-	var td921 = d.createElement("td");		td921.style.padding = "3px";
-		td921.style.verticalAlign = "top";	td921.style.textAlign = "center";
-	var td922 = d.createElement("td");		td922.style.padding = "3px";
-		td922.style.verticalAlign = "top";	td922.style.textAlign = "center";
-
-	var td923 = d.createElement("td");		td911.style.padding = "3px";
-		td911.style.verticalAlign = "bottom";
-	var td924 = d.createElement("td");		td912.style.padding = "3px";
-		td912.style.verticalAlign = "top";	td912.style.textAlign = "center";
-	var td925 = d.createElement("td");		td913.style.padding = "3px";
-		td913.style.verticalAlign = "top";	td913.style.textAlign = "center";
+	var td911 = d.createElement("td");		td911.style.padding = "3px";		td911.style.verticalAlign = "bottom";
+	var td912 = d.createElement("td");		td912.style.padding = "3px";		td912.style.verticalAlign = "top";	td912.style.textAlign = "center";
+	var td913 = d.createElement("td");		td913.style.padding = "3px";		td913.style.verticalAlign = "top";	td913.style.textAlign = "center";
+	var td914 = d.createElement("td");		td914.style.padding = "3px";		td914.style.verticalAlign = "top";	td914.style.textAlign = "center";
+	var td915 = d.createElement("td");		td915.style.padding = "3px";		td915.style.verticalAlign = "top";	td915.style.textAlign = "center";
+	var td916 = d.createElement("td");		td916.style.padding = "3px";		td916.style.verticalAlign = "top";	td916.style.textAlign = "center";
+	var td917 = d.createElement("td");		td917.style.padding = "3px";		td917.style.verticalAlign = "top";	td917.style.textAlign = "center";
+	var td918 = d.createElement("td");		td918.style.padding = "3px";		td918.style.verticalAlign = "top";	td918.style.textAlign = "center";
+	var td919 = d.createElement("td");		td919.style.padding = "3px";		td919.style.verticalAlign = "top";	td919.style.textAlign = "center";
+	var td920 = d.createElement("td");		td920.style.padding = "3px";		td920.style.verticalAlign = "top";	td920.style.textAlign = "center";
+	var td921 = d.createElement("td");		td921.style.padding = "3px";		td921.style.verticalAlign = "top";	td921.style.textAlign = "center";
+	var td922 = d.createElement("td");		td922.style.padding = "3px";		td922.style.verticalAlign = "top";	td922.style.textAlign = "center";
+	var td923 = d.createElement("td");		td911.style.padding = "3px";		td911.style.verticalAlign = "bottom";
+	var td924 = d.createElement("td");		td912.style.padding = "3px";		td912.style.verticalAlign = "top";	td912.style.textAlign = "center";
+	var td925 = d.createElement("td");		td913.style.padding = "3px";		td913.style.verticalAlign = "top";	td913.style.textAlign = "center";
 
 	Blacksmith_Box.appendChild(tr900);
 		tr900.appendChild(td900);
@@ -3958,8 +3959,8 @@ function addInifacHtml(vId) {
 	ccreateTextBox(tda14,"OPT_BLD_IRON", OPT_BLD_IRON,"","鉄を残す量",8,0);
 	ccreateText(tda15, "dummy", "糧", 0 );
 	ccreateTextBox(tda15,"OPT_BLD_RICE", OPT_BLD_RICE,"","糧を残す量",8,0);
-	ccreateText(tda16, "dummy", "　", 0 );
-	ccreateButton(tda16, "初期化", "残す資源量の設定内容を消去します。", function() {clearInitRemainingRes()});
+//	ccreateText(tda16, "dummy", "　", 0 );
+	ccreateButton(tda16, "初期化", "残す資源量の設定内容を消去します。", function() {clearInitRemainingRes()},54,10);
 
 	// ===== 確認 ====
 
@@ -3981,9 +3982,20 @@ function addInifacHtml(vId) {
 	});
 	ccreateButton(td711, "閉じる", "設定内容を保存せず閉じます", function() {
 		closeInifacBox();
-			clearInterval(tidMain2);
-	        tidMain2=setTimeout(function(){location.reload();},INTERVAL);
+		clearInterval(tidMain2);
+	        tidMain2=unsafeWindow.setTimeout(function(){location.reload();},INTERVAL);
 	});
+
+
+	if (vId == villages[0][IDX_XY]) {
+		ccreateButton(td711, "市場情報初期化", "市場情報を初期化します", function() {
+
+			csaveData(HOST+"ShopList",[],true,true);
+			closeIniBilderBox()
+			openIniBilderBox()
+			alert("市場情報を初期化しました");
+		},85);
+	}
 
 	// == コンテナ設定 ==
 	// 上段
@@ -4055,7 +4067,7 @@ function createRadioBtn ( value, txt ) {
     radioLabel.style.padding = '0px';
 //	dv.style.padding = "2px";
 //    radioLabel.addEventListener ( 'click', function(){GM_setValue( 'tweetOpt', value );}, true );
-    radioLabel.addEventListener ( 'click', function(){ OPT_BLD = value; }, true );
+    radioLabel.addEventListener ( 'click', function(){ OPT_BLD = value;}, true );
     var radioLabelText = document.createTextNode(" " + txt);
     var radioButton = document.createElement('input');
     radioButton.type = 'radio';
@@ -4064,7 +4076,6 @@ function createRadioBtn ( value, txt ) {
 	radioButton.style.verticalAlign = "top";
 //    radioButton.style.margin = '0 2px 0 0';
     if ( OPT_BLD == value ) radioButton.checked = true;
-//	alert(OPT_BLD + " : " + value);
     radioLabel.appendChild( radioButton );
     radioLabel.appendChild( radioLabelText );
     return radioLabel;
@@ -4118,29 +4129,50 @@ function SaveInifacBox(vId){
 	//自動内政用 by nottisan ここから追加
 	// ＠＠　追加　＠＠
 	strSave += cgetComboBoxValue($("OPT_ICHIBA_PA")) + DELIMIT2; //市場での変換パターンフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME1")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME2")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME3")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME4")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME5")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME6")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME7")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME8")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME9")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME10")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME11")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME12")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME13")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME14")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME15")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME16")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME17")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME18")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME19")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME20")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME21")) + DELIMIT2; //内政使用するかのフラグ
-	strSave += cgetCheckBoxValue($("OPT_DOME22")) + DELIMIT2; //内政使用するかのフラグ
-
+	try {
+		strSave += cgetCheckBoxValue($("OPT_DOME1")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME2")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME3")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME4")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME5")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME6")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME7")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME8")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME9")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME10")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME11")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME12")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME13")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME14")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME15")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME16")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME17")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME18")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME19")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME20")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME21")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME22")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME23")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME24")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME25")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME26")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME27")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME28")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME29")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME30")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME31")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME32")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME33")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME34")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME35")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME36")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME37")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME38")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME39")) + DELIMIT2; //内政使用するかのフラグ
+		strSave += cgetCheckBoxValue($("OPT_DOME40")) + DELIMIT2; //内政使用するかのフラグ
+	} catch(e) {
+		strSave += 0 + DELIMIT2; //内政使用するかのフラグ
+	}
 	// 施設ごとの建設レベル保存用
 	for(i=0; i<=22;i++) {
 		var opt = $("OPT_CHKBOXLV" + i);
@@ -4202,20 +4234,21 @@ function SaveInifacBox(vId){
 }
 //拠点単位の設定の読み込み
 function Load_OPT(vId){
+
+debugLog("=== Start Load_OPT ===");
 	var src = GM_getValue(HOST+PGNAME+vId, "");
 	if (src == "") {
-		OPT_MAX_LV = "";
-		for(i=0; i<=22;i++){
-			OPT_CHKBOX[i] = 0;
-		}
+		debugLog("拠点データなし");
+		// 拠点データがない場合
+
 		OPT_KATEMURA = 0;
 		OPT_SOUKO_MAX = 0;
 		OPT_KIFU = 0;
 		OPT_RISE_KIFU_MAX = 0;
 		OPT_RISE_KIFU = 0;
-		for(i=1; i<=22; i++){ OPT_DOME[i]     = 0; }
-		for(i=0; i<=22; i++){ OPT_CHKBOXLV[i] = 0;}
-		return;
+		for(i=1; i<=40; i++){ OPT_DOME[i]     = 0;}
+		for(i=0; i<=22; i++){ OPT_CHKBOX[i]   = 0;}
+		for(i=0; i<=22; i++){ OPT_CHKBOXLV[i] = "0";}
 
 		//市場変換処理用 （本拠地情報にデータがある）
 		var villages = loadVillages(HOST+PGNAME);
@@ -4230,21 +4263,23 @@ function Load_OPT(vId){
 			OPT_MAX_WOOD  = 0;		// 木の最大保持量（この量を超えたら変換しない）
 			OPT_MAX_STONE = 0;		// 石    〃
 			OPT_MAX_IRON  = 0;		// 鉄    〃
+		} else {
+			var shiroTemp  = src2.split(DELIMIT1);
+			var shiroTemp2 = shiroTemp[1].split(DELIMIT2);
+
+			OPT_ICHIBA = forInt(shiroTemp2[23]);			// 市場自動変換の利用有無
+			OPT_RISE_MAX = forInt(shiroTemp2[24]);		// 糧の自動変換開始量
+			OPT_TO_WOOD = forInt(shiroTemp2[25]);			// 木に変換する糧の量
+			OPT_TO_STONE = forInt(shiroTemp2[26]);		// 石　　　 〃
+			OPT_TO_IRON = forInt(shiroTemp2[27]);			// 鉄       〃
+			OPT_ICHIBA_PA = shiroTemp2[33];				// 変換パターン
+			OPT_MAX_WOOD = forInt(shiroTemp2[97]);		// 木の最大保持量（この量を超えたら変換しない）
+			OPT_MAX_STONE = forInt(shiroTemp2[98]);		// 石    〃
+			OPT_MAX_IRON = forInt(shiroTemp2[99]);		// 鉄    〃
 		}
-
-		OPT_ICHIBA = parseInt(shiroTemp2[23]);			// 市場自動変換の利用有無
-		OPT_RISE_MAX = parseInt(shiroTemp2[24]);		// 糧の自動変換開始量
-		OPT_TO_WOOD = parseInt(shiroTemp2[25]);			// 木に変換する糧の量
-		OPT_TO_STONE = parseInt(shiroTemp2[26]);		// 石　　　 〃
-		OPT_TO_IRON = parseInt(shiroTemp2[27]);			// 鉄       〃
-		OPT_ICHIBA_PA = shiroTemp2[33];					// 変換パターン
-		OPT_MAX_WOOD = parseInt(shiroTemp2[79]);		// 木の最大保持量（この量を超えたら変換しない）
-		OPT_MAX_STONE = parseInt(shiroTemp2[80]);		// 石    〃
-		OPT_MAX_IRON = parseInt(shiroTemp2[81]);		// 鉄    〃
-
 		// ビルスク情報
-		OPT_BLD   = 0;
-		OPT_SorH  = 0;
+		OPT_BLD = "AC";
+		OPT_SorH = "DD";
 		OPT_MAX   = 0;
 		OPT_MAXLV = 0;
 		OPT_MAX   = 6;
@@ -4252,7 +4287,7 @@ function Load_OPT(vId){
 
 		// 兵作成情報
 		for (i=0;i<14;i++){	OPT_SOL_MAX[i] = 0;	OPT_SOL_MAX[i]  = 0; };
-		for (i=0;i<14;i++){	OPT_SOL_ADD[i] = 0; OPT_SOL_ADD[i]  = 0; };
+		for (i=0;i<14;i++){	OPT_SOL_ADD[i] = 0; 	OPT_SOL_ADD[i]  = 0; };
 		OPT_BLD_SOL   = 0;
 		OPT_BLD_WOOD  = 0;
 		OPT_BLD_STONE = 0;
@@ -4268,151 +4303,124 @@ function Load_OPT(vId){
 		for (i=0;i<14;i++){ OPT_BG_LV[i] = 0; OPT_BG_LV[i]  = 0; };
 		OPT_BKBG_CHK  = 0;
 
+//		SaveInifacBox(vId);	// 拠点情報の保存
+
 		return;
+	} else {
+		// 拠点データの読込
+		var Temp = src.split(DELIMIT1);
+		OPT_MAX_LV = Temp[0];
+		var Temp2 = Temp[1].split(DELIMIT2);
+		var i;
+		for(i=0; i<=22;i++){
+			if(Temp2[i] == ""){return;}
+			OPT_CHKBOX[i] = forInt(Temp2[i]);
+		}
+
+		//糧村化
+		if(Temp2[28] == ""){return;}
+		OPT_KATEMURA = forInt(Temp2[28]);
+		OPT_SOUKO_MAX = forInt(Temp2[29]);
+
+		//自動寄付
+		if(Temp2[30] == ""){return;}
+		OPT_KIFU = forInt(Temp2[30]);
+		OPT_RISE_KIFU_MAX = forInt(Temp2[31]);
+		OPT_RISE_KIFU = forInt(Temp2[32]);
+
+		//自動内政 by nottisan ここから追加
+		// ＠＠　追加　＠＠
+		for (i=1;i<=40;i++){
+			OPT_DOME[i]  = forInt(Temp2[33 + i]);
+		}
+	// @@ 2011.06.22
+		for (i=0; i <= 22; i++){
+			OPT_CHKBOXLV[i] = forInt(Temp2[74 + i]);
+		}
+
+		//市場変換処理用は本拠地データを取得
+		var villages = loadVillages(HOST+PGNAME);
+		var src2 = GM_getValue(HOST+PGNAME+villages[0][IDX_XY], "");
+		if (src2 == "") {
+			OPT_ICHIBA    = 0;		// 市場自動変換の利用有無
+			OPT_RISE_MAX  = 0;		// 糧の自動変換開始量
+			OPT_TO_WOOD   = 0;		// 木に変換する糧の量
+			OPT_TO_STONE  = 0;		// 石　　　 〃
+			OPT_TO_IRON   = 0;		// 鉄       〃
+			OPT_ICHIBA_PA = 0;		// 変換パターン
+			OPT_MAX_WOOD  = 0;		// 木の最大保持量（この量を超えたら変換しない）
+			OPT_MAX_STONE = 0;		// 石    〃
+			OPT_MAX_IRON  = 0;		// 鉄    〃
+		} else {
+
+			var shiroTemp  = src2.split(DELIMIT1);
+			var shiroTemp2 = shiroTemp[1].split(DELIMIT2);
+
+			OPT_ICHIBA = forInt(shiroTemp2[23]);			// 市場自動変換の利用有無
+
+			OPT_RISE_MAX = forInt(shiroTemp2[24]);		// 糧の自動変換開始量
+			OPT_TO_WOOD = forInt(shiroTemp2[25]);			// 木に変換する糧の量
+			OPT_TO_STONE = forInt(shiroTemp2[26]);		// 石　　　 〃
+			OPT_TO_IRON = forInt(shiroTemp2[27]);			// 鉄       〃
+
+			OPT_ICHIBA_PA = shiroTemp2[33];					// 変換パターン
+
+			OPT_MAX_WOOD = forInt(shiroTemp2[97]);		// 木の最大保持量（この量を超えたら変換しない）
+			OPT_MAX_STONE = forInt(shiroTemp2[98]);		// 石    〃
+			OPT_MAX_IRON = forInt(shiroTemp2[99]);		// 鉄    〃
+		}
+
+		// ビルスク情報
+		OPT_BLD = Temp2[100];
+		OPT_SorH = Temp2[101];
+		OPT_MAX  = Temp2[102];
+		OPT_MAXLV  = Temp2[103];
+		if (OPT_MAX == undefined) { OPT_MAX = 6; }
+		if (OPT_MAXLV == undefined || OPT_MAXLV > 15) { OPT_MAXLV = 6; }
+
+		// 兵作成情報
+		for (i=0;i<14;i++){	
+			OPT_SOL_MAX[i] = forInt(Temp2[104 + i]);
+			if (isNaN(OPT_SOL_MAX[i])) { OPT_SOL_MAX[i]  = 0; };
+		}
+		for (i=0;i<14;i++){
+			OPT_SOL_ADD[i] = forInt(Temp2[118 + i]);
+			if (isNaN(OPT_SOL_ADD[i])) { OPT_SOL_ADD[i]  = 0; };
+		}
+		OPT_BLD_SOL  = forInt(Temp2[132]);
+
+		OPT_BLD_WOOD  = forInt(Temp2[133]);
+		OPT_BLD_STONE = forInt(Temp2[134]);
+		OPT_BLD_IRON  = forInt(Temp2[135]);
+		OPT_BLD_RICE  = forInt(Temp2[136]);
+
+		if (isNaN(OPT_BLD_WOOD))  { OPT_BLD_WOOD  = 0; };
+		if (isNaN(OPT_BLD_STONE)) { OPT_BLD_STONE = 0; };
+		if (isNaN(OPT_BLD_IRON))  { OPT_BLD_IRON  = 0; };
+		if (isNaN(OPT_BLD_RICE))  { OPT_BLD_RICE  = 0; };
+
+		for (i=0;i<14;i++){
+			OPT_BK_LV[i] = forInt(Temp2[137 + i]);
+			if (isNaN(OPT_BK_LV[i])) { OPT_BK_LV[i]  = 0; };
+		}
+
+		for (i=0;i<14;i++){
+			OPT_BG_LV[i] = forInt(Temp2[151 + i]);
+			if (isNaN(OPT_BG_LV[i])) { OPT_BG_LV[i]  = 0; };
+
+		}
+
+		OPT_BKBG_CHK  = forInt(Temp2[165]);
 	}
-
-	var Temp = src.split(DELIMIT1);
-	OPT_MAX_LV = Temp[0];
-	var Temp2 = Temp[1].split(DELIMIT2);
-	var i;
-	for(i=0; i<=22;i++){
-		if(Temp2[i] == ""){return;}
-		OPT_CHKBOX[i] = parseInt(Temp2[i]);
-	}
-
-	//糧村化
-	if(Temp2[28] == ""){return;}
-	OPT_KATEMURA = parseInt(Temp2[28]);
-	OPT_SOUKO_MAX = parseInt(Temp2[29]);
-
-	//自動寄付
-	if(Temp2[30] == ""){return;}
-	OPT_KIFU = parseInt(Temp2[30]);
-	OPT_RISE_KIFU_MAX = parseInt(Temp2[31]);
-	OPT_RISE_KIFU = parseInt(Temp2[32]);
-
-	//自動内政 by nottisan ここから追加
-	// ＠＠　追加　＠＠
-	OPT_DOME[1]  = parseInt(Temp2[34]);
-	OPT_DOME[2]  = parseInt(Temp2[35]);
-	OPT_DOME[3]  = parseInt(Temp2[36]);
-	OPT_DOME[4]  = parseInt(Temp2[37]);
-	OPT_DOME[5]  = parseInt(Temp2[38]);
-	OPT_DOME[6]  = parseInt(Temp2[39]);
-	OPT_DOME[7]  = parseInt(Temp2[40]);
-	OPT_DOME[8]  = parseInt(Temp2[41]);
-	OPT_DOME[9]  = parseInt(Temp2[42]);
-	OPT_DOME[10] = parseInt(Temp2[43]);
-	OPT_DOME[11] = parseInt(Temp2[44]);
-	OPT_DOME[12] = parseInt(Temp2[45]);
-	OPT_DOME[13] = parseInt(Temp2[46]);
-	OPT_DOME[14] = parseInt(Temp2[47]);
-	OPT_DOME[15] = parseInt(Temp2[48]);
-	OPT_DOME[16] = parseInt(Temp2[49]);
-	OPT_DOME[17] = parseInt(Temp2[50]);
-	OPT_DOME[18] = parseInt(Temp2[51]);
-	OPT_DOME[19] = parseInt(Temp2[52]);
-	OPT_DOME[20] = parseInt(Temp2[53]);
-	OPT_DOME[21] = parseInt(Temp2[54]);
-	OPT_DOME[22] = parseInt(Temp2[55]);
-// @@ 2011.06.22
-	for (i=0; i <= 22; i++){
-		OPT_CHKBOXLV[i] = parseInt(Temp2[56+i]);
-	}
-
-// 糧変換部分
-
-	//市場変換処理用
-	var villages = loadVillages(HOST+PGNAME);
-	var src2 = GM_getValue(HOST+PGNAME+villages[0][IDX_XY], "");
-	if (src2 == "") return;
-
-	var shiroTemp  = src2.split(DELIMIT1);
-	var shiroTemp2 = shiroTemp[1].split(DELIMIT2);
-
-	OPT_ICHIBA = parseInt(shiroTemp2[23]);			// 市場自動変換の利用有無
-
-	OPT_RISE_MAX = parseInt(shiroTemp2[24]);		// 糧の自動変換開始量
-	OPT_TO_WOOD = parseInt(shiroTemp2[25]);			// 木に変換する糧の量
-	OPT_TO_STONE = parseInt(shiroTemp2[26]);		// 石　　　 〃
-	OPT_TO_IRON = parseInt(shiroTemp2[27]);			// 鉄       〃
-
-	OPT_ICHIBA_PA = shiroTemp2[33];					// 変換パターン
-
-	OPT_MAX_WOOD = parseInt(shiroTemp2[79]);		// 木の最大保持量（この量を超えたら変換しない）
-	OPT_MAX_STONE = parseInt(shiroTemp2[80]);		// 石    〃
-	OPT_MAX_IRON = parseInt(shiroTemp2[81]);		// 鉄    〃
-
-/*
-	OPT_ICHIBA = parseInt(Temp2[23]);			// 市場自動変換の利用有無
-
-	OPT_RISE_MAX = parseInt(Temp2[24]);			// 糧の自動変換開始量
-	OPT_TO_WOOD = parseInt(Temp2[25]);			// 木に変換する糧の量
-	OPT_TO_STONE = parseInt(Temp2[26]);			// 石　　　 〃
-	OPT_TO_IRON = parseInt(Temp2[27]);			// 鉄       〃
-
-	OPT_ICHIBA_PA = Temp2[33];					// 変換パターン
-
-	OPT_MAX_WOOD = parseInt(Temp2[79]);			// 木の最大保持量（この量を超えたら変換しない）
-	OPT_MAX_STONE = parseInt(Temp2[80]);		// 石    〃
-	OPT_MAX_IRON = parseInt(Temp2[81]);			// 鉄    〃
-*/
-// @@@@ add 2011.09.06
-	OPT_BLD = Temp2[82];
-	OPT_SorH = Temp2[83];
-	OPT_MAX  = Temp2[84];
-	OPT_MAXLV  = Temp2[85];
-	if (OPT_MAX == undefined) { OPT_MAX = 6; }
-	if (OPT_MAXLV == undefined || OPT_MAXLV > 15) { OPT_MAXLV = 6; }
-
-	// 兵作成情報
-	for (i=0;i<14;i++){	
-		OPT_SOL_MAX[i] = parseInt(Temp2[86 + i]);
-		if (isNaN(OPT_SOL_MAX[i])) { OPT_SOL_MAX[i]  = 0; };
-	}
-	for (i=0;i<14;i++){
-		OPT_SOL_ADD[i] = parseInt(Temp2[100 + i]);
-		if (isNaN(OPT_SOL_ADD[i])) { OPT_SOL_ADD[i]  = 0; };
-	}
-	OPT_BLD_SOL  = parseInt(Temp2[114]);
-
-	OPT_BLD_WOOD  = parseInt(Temp2[115]);
-	OPT_BLD_STONE  = parseInt(Temp2[116]);
-	OPT_BLD_IRON  = parseInt(Temp2[117]);
-	OPT_BLD_RICE  = parseInt(Temp2[118]);
-
-	if (isNaN(OPT_BLD_WOOD))  { OPT_BLD_WOOD  = 0; };
-	if (isNaN(OPT_BLD_STONE)) { OPT_BLD_STONE = 0; };
-	if (isNaN(OPT_BLD_IRON))  { OPT_BLD_IRON  = 0; };
-	if (isNaN(OPT_BLD_RICE))  { OPT_BLD_RICE  = 0; };
-
-	for (i=0;i<14;i++){
-		OPT_BK_LV[i] = parseInt(Temp2[119 + i]);
-		if (isNaN(OPT_BK_LV[i])) { OPT_BK_LV[i]  = 0; };
-	}
-
-	for (i=0;i<14;i++){
-		OPT_BG_LV[i] = parseInt(Temp2[133 + i]);
-		if (isNaN(OPT_BG_LV[i])) { OPT_BG_LV[i]  = 0; };
-
-	}
-
-	OPT_BKBG_CHK  = parseInt(Temp2[147]);
-
-
-	// ＠＠　ここまで　＠＠
-	return;
 }
 //ユーザプロフィール画面の拠点情報を取得
 function getUserProf(htmldoc) {
 	var oldVillages = loadVillages(HOST+PGNAME);
 	var newVillages = new Array();
-	//alert(oldVillages);
 	var landElems = document.evaluate(
 		'//*[@id="gray02Wrapper"]//table/tbody/tr',
 		htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 	var isLandList = false;
-//alert(landElems.snapshotLength);
 	for (var i=0; i<landElems.snapshotLength; i++) {
 		var item = landElems.snapshotItem(i);
 		
@@ -4463,7 +4471,6 @@ function getUserProf(htmldoc) {
 
 //拠点情報を読み出し
 function loadVillages(hostname) {
-//	alert("loadVillages");
 	var ret = new Array();
 	
 	var src = GM_getValue(hostname, "");
@@ -4520,7 +4527,6 @@ function saveVillages(hostname, newData) {
 	}
 	//Greasemondey領域へ永続保存
 	GM_setValue(hostname, genDelimitString(newDataStr, DELIMIT1));
-	//alert(genDelimitString(newDataStr, DELIMIT1));
 
 
 }
@@ -4655,15 +4661,17 @@ function ccreateTextBox(container, id, def, text, title, size, left )
 {
 	left += 2;
 	var dv = d.createElement("div");
-	dv.style.padding = "1px";
+	dv.style.padding = "2px";
 	dv.style.paddingLeft= left + "px";
+//	dv.style.paddingTop    = "7px";
+//	dv.style.paddingBottom = "2px";
 	dv.title = title;
 	var tb = d.createElement("input");
 	tb.type = "text";
 	tb.id = id;
 	tb.value = def;
 	tb.size = size;
-	tb.style.verticalAlign = "middle";
+//	tb.style.verticalAlign = "middle";
 	tb.style.textAlign = "right";
 	tb.style.paddingRight = "3px";
 
@@ -4680,15 +4688,15 @@ function ccreateText(container, id, text, left )
 {
 	left += 2;
 	var dv = d.createElement("div");
-	dv.style.padding = "1px";
+	dv.style.padding = "2px";
 	dv.style.paddingLeft= left + "px";
-	dv.style.paddingBottom = "3px";
+	dv.style.paddingBottom = "2px";
 
 	var lb = d.createElement("label");
 	lb.htmlFor = id;
 	lb.style.verticalAlign = "middle";
 	var tx = d.createTextNode(text);
-	tx.fontsize = "10px";
+	tx.fontsize = "9px";
 	lb.appendChild( tx );
 
 	dv.appendChild(lb);
@@ -4724,12 +4732,15 @@ function ccreateCheckBox(container, id, def, text, title, left )
 }
 
 
-function ccreateButton(container, text, title, func, width)
+function ccreateButton(container, text, title, func, width, top)
 {
 	var btn = d.createElement("input");
 	btn.style.padding = "0px";
 	btn.type = "button";
 	btn.value = text;
+	if (top != undefined) {
+		btn.style.marginTop = top + "px";
+	}
 	if (width == undefined) {
 		btn.style.width = "54px";
 	} else {
@@ -5237,8 +5248,6 @@ function Chek_Sigen(area){
 	costs["砦"] = cost_toride;
 	costs["村"] = cost_mura;
 
-	//alert(area.name +":" + area.lv +":" +area.xy );
-
 	var RES_NOW = [];
 	RES_NOW["wood"] = parseInt( $("wood").innerHTML, 10 );
 	RES_NOW["stone"] = parseInt( $("stone").innerHTML, 10 );
@@ -5256,7 +5265,6 @@ function Chek_Sigen(area){
 				return 1;
 		}
 	}catch(e) {
-//		console.log("catched");
 	}
 	return 0;
 
@@ -5264,6 +5272,7 @@ function Chek_Sigen(area){
 
 function getSoldier() {
 
+debugLog("=== Start getSoldier ===");
 
 	var tables = document.evaluate('//*[@class="status village-bottom"]',document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 	var Temp = tables.snapshotItem(0).innerHTML.substring(tables.snapshotItem(0).innerHTML.lastIndexOf(" ")+1);
@@ -5283,7 +5292,7 @@ function getSoldier() {
 	var moveData	 = new Array(0,0,0,0,0,0,0,0,0,0,0);
 
 
-	var tid=setTimeout(function(){
+	var tid=unsafeWindow.setTimeout(function(){
 
 		GM_xmlhttpRequest({
 			method:"GET", 
@@ -5399,9 +5408,8 @@ function make_soldier(attackerData){
 						c['y']=parseInt(sort_priority[i][8]);
 						c['unit_id']=sort_priority[i][1];
 						c['count']=OPT_SOL_ADD[sort_priority[i][1] - 300];
-						console.log(c);
 						j$.post("http://"+HOST+"/facility/facility.php?x=" + sort_priority[i][7] + "&y=" + sort_priority[i][8] + "#ptop",c,function(){});
-						var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+						var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 
 						break;
 					}
@@ -5429,49 +5437,73 @@ function make_soldier(attackerData){
 			// 建物がない
 			make_loop(loop + 1);
 		} else {
-			var tid=setTimeout(function(){
-				var mURL = FACLINK;
-				mURL = mURL.replace(URL_SITE,HOST);
-				mURL = mURL.replace(URL_X,_x);
-				mURL = mURL.replace(URL_Y,_y);
 
-				GM_xmlhttpRequest({
-					method:"GET", 
-					url: mURL,
-					headers:{"Content-type":"text/html"},
-					overrideMimeType:'text/html; charset=utf-8',
-					onload:function(x){
-						var htmldoc = document.createElement("html");
-					        htmldoc.innerHTML = x.responseText;
+			MakeSoldierFlg = false;	// 兵士作成フラグ
 
-						var makeElem = document.evaluate('//*[@id="area_timer0"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-						if (makeElem.snapshotLength > 0) {
-							// 兵士は作成中
-						} else {
-							var makeElem  = document.evaluate('//th[@class="mainTtl"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+			var tables = document.evaluate('//*[@class="status village-bottom"]',document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+			var Temp = tables.snapshotItem(0).innerHTML.substring(tables.snapshotItem(0).innerHTML.lastIndexOf(" ")+1);
+			temp0 = Temp.split("/");
+			var now_Soldier = temp0[0];
+			var max_Soldier = temp0[1];
+			var make_max = temp0[1] - temp0[0]; // 最大作成可能兵数
+			// 宿舎に空きがあるか？
+		    switch (make_name[loop]) { 
+        		case "兵器工房":	if ((OPT_SOL_ADD[12] <= make_max) && (OPT_SOL_ADD[13] <= make_max)) 								{ MakeSoldierFlg = true; }		// 衝車・投石機
+        		case "厩舎":		if ((OPT_SOL_ADD[5]  <= make_max) && (OPT_SOL_ADD[7]  <= make_max) && (OPT_SOL_MAX[11] <= make_max)){ MakeSoldierFlg = true; }		// 騎兵・近衛騎兵・斥候騎兵
+        		case "兵舎":		if ((OPT_SOL_ADD[3]  <= make_max) && (OPT_SOL_ADD[4]  <= make_max)) 								{ MakeSoldierFlg = true; }		// 槍兵・矛槍兵
+        		case "弓兵舎":		if ((OPT_SOL_ADD[8]  <= make_max) && (OPT_SOL_ADD[9]  <= make_max)) 								{ MakeSoldierFlg = true; }		// 弓兵・弩兵
+        		case "練兵所":		if ((OPT_SOL_ADD[1]  <= make_max) && (OPT_SOL_ADD[10] <= make_max)) 								{ MakeSoldierFlg = true; }		// 剣兵・斥候
+			}
+			if (MakeSoldierFlg) {
+				var tid=unsafeWindow.setTimeout(function(){
+					var mURL = FACLINK;
+					mURL = mURL.replace(URL_SITE,HOST);
+					mURL = mURL.replace(URL_X,_x);
+					mURL = mURL.replace(URL_Y,_y);
+					GM_xmlhttpRequest({
+						method:"GET", 
+						url: mURL,
+						headers:{"Content-type":"text/html"},
+						overrideMimeType:'text/html; charset=utf-8',
+						onload:function(x){
+							var htmldoc = document.createElement("html");
+						        htmldoc.innerHTML = x.responseText;
 
-							for (var i = 1; i < makeElem.snapshotLength; i++ ){
-								// 兵作成可能
-								make_no[makeElem.snapshotItem(i).innerHTML][2] = 1;
-								// 兵作成可能数
-								make_no[makeElem.snapshotItem(i).innerHTML][3] = parseInt(sumMaxSoldier(make_no[makeElem.snapshotItem(i).innerHTML][1]));
-								// 現存合計兵数
-								make_no[makeElem.snapshotItem(i).innerHTML][5] = attackerData[make_no[makeElem.snapshotItem(i).innerHTML][4]];
-								// 残必要兵数
-								make_no[makeElem.snapshotItem(i).innerHTML][6] = OPT_SOL_MAX[make_no[makeElem.snapshotItem(i).innerHTML][1] - 300] - attackerData[make_no[makeElem.snapshotItem(i).innerHTML][4]];
-								if (make_no[makeElem.snapshotItem(i).innerHTML][6] < 0) {
-									make_no[makeElem.snapshotItem(i).innerHTML][6] = 0;
+							var makeElem = document.evaluate('//*[@id="area_timer0"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+							if (makeElem.snapshotLength > 0) {
+								// 兵士は作成中
+								getTrainingSoldier(htmldoc);
+								if ( getStayMode() ) {
+									closeIniBilderBox()
+									openIniBilderBox()
 								}
-								// 座標
-								make_no[makeElem.snapshotItem(i).innerHTML][7] = _x;
-								make_no[makeElem.snapshotItem(i).innerHTML][8] = _y;
-//								console.log(makeElem.snapshotItem(i).innerHTML + " : " + (make_no[makeElem.snapshotItem(i).innerHTML][1] - 300));
-							};
+							} else {
+								var makeElem  = document.evaluate('//th[@class="mainTtl"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+
+								for (var i = 1; i < makeElem.snapshotLength; i++ ){
+									// 兵作成可能
+									make_no[makeElem.snapshotItem(i).innerHTML][2] = 1;
+									// 兵作成可能数
+									make_no[makeElem.snapshotItem(i).innerHTML][3] = parseInt(sumMaxSoldier(make_no[makeElem.snapshotItem(i).innerHTML][1]));
+									// 現存合計兵数
+									make_no[makeElem.snapshotItem(i).innerHTML][5] = attackerData[make_no[makeElem.snapshotItem(i).innerHTML][4]];
+									// 残必要兵数
+									make_no[makeElem.snapshotItem(i).innerHTML][6] = OPT_SOL_MAX[make_no[makeElem.snapshotItem(i).innerHTML][1] - 300] - attackerData[make_no[makeElem.snapshotItem(i).innerHTML][4]];
+									if (make_no[makeElem.snapshotItem(i).innerHTML][6] < 0) {
+										make_no[makeElem.snapshotItem(i).innerHTML][6] = 0;
+									}
+									// 座標
+									make_no[makeElem.snapshotItem(i).innerHTML][7] = _x;
+									make_no[makeElem.snapshotItem(i).innerHTML][8] = _y;
+								};
+							}
+							make_loop(loop + 1);
 						}
-						make_loop(loop + 1);
-					}
-				});
-			},1000);
+					});
+				},1000);
+			} else {
+				make_loop(loop + 1);
+			}
 		}
 	}
 
@@ -5637,17 +5669,15 @@ function OverFlowPrevention() {
 
 //市場変換処理
 function ichibaChange(vId) {
-	if(OPT_ICHIBA != 1) {
-		//alert("市場自動変換未指定");
-		return;
-	}
+
+debugLog("=== Start ichibaChange ===");
+
 	var ichiba_x = -1; //市場のX座標
 	var ichiba_y = -1; //市場のY座標
 	var ichiba_lv = -1; //市場のレベル
 
 	var area = new Array();
 	area = get_area();
-
 	for(i=0;i<area.length;i++){
 		//市場の座標を取得
 		if(area[i].name == "市場") {
@@ -5663,6 +5693,11 @@ function ichibaChange(vId) {
 	} else {
 		// 市場がある村ID・座標・レベルを保管
 		addShopList(vId,ichiba_lv,ichiba_x,ichiba_y);
+	}
+
+	if(OPT_ICHIBA != 1) {
+		//alert("市場自動変換未指定");
+		return;
 	}
 
 
@@ -5692,7 +5727,7 @@ function ichibaChange(vId) {
 			c['rice']  = Math.floor(RES_NOW["rice"]  * 0.01);
 			c['contribution'] = 1;
 			j$.post("http://"+HOST+"/alliance/level.php",c,function(){});
-			var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+			var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 		}
 		return;
 	}
@@ -5726,7 +5761,7 @@ function ichibaChange(vId) {
 	}
 
 // 一番市場レベルの高い拠点へジャンプ 2012.04.13
-	var shoplist = cloadData("ShopList","[]",true,true);
+	var shoplist = cloadData(HOST+"ShopList","[]",true,true);
 	if (shoplist.length == 0) { return; }
 	shoplist.sort( function(a,b) { if (a[1] < b[1]) return 1; if (a[1] > b[1]) return -1; return 0;});
 	if (vId != shoplist[0].vId) {
@@ -5745,43 +5780,6 @@ function ichibaChange(vId) {
 		}
 		return;
 	}
-/*
-            sort_priority.sort( function(a, b) { if (a[6] < b[6]) return 1; if (a[6] > b[6]) return -1; return 0;});
-
-	var shopVid = "";
-	var shopLv = -1;
-	var shopX = -1;
-	var shopY = -1;
-	for (var i=0 ; i<shoplist.length ; i++) {
-		if (shopLv < shoplist[i].lv) {
-			shopVid = shoplist[i].vId;
-			shopLv  = shoplist[i].lv;
-			shopX   = shoplist[i].x;
-			shopY   = shoplist[i].y;
-		}
-	}
-	// どこにも市場がない
-	if (shopLv == -1) {
-		return;
-	}
-	// 現在の拠点の市場が一番レベルが高くない場合の処理
-	if (vId != shopVid) {
-		// 一番市場のレベルの高い拠点へ移動
-		var villages = loadVillages(HOST+PGNAME);
-		var nextIndex = -1;
-    
-		for(var i=0; i<villages.length;i++){
-	    	if(shopVid == villages[i][IDX_XY]){
-	            nextIndex = i;
-		        break;
-		    }
-		}
-		if (nextIndex != -1) {
-			ShopURL = villages[nextIndex][IDX_URL];
-		}
-		return;
-	}
-*/
 
 	if(OPT_ICHIBA_PATS[0] == OPT_ICHIBA_PA){
 
@@ -5799,47 +5797,36 @@ function ichibaChange(vId) {
 		//糧から他の資源に返還開始
 		if((OPT_TO_WOOD > 0) && ( RES_NOW["wood"] == min_sigen )) {
 			changeResorceToResorce(RICE, OPT_TO_WOOD, WOOD, ichiba_x, ichiba_y);
-//			console.log(location.hostname + "【均等】糧変換 to 木：" + OPT_TO_WOOD);
 		} else if((OPT_TO_STONE > 0) && ( RES_NOW["stone"] == min_sigen )) {
 			changeResorceToResorce(RICE, OPT_TO_STONE, STONE, ichiba_x, ichiba_y);
-//			console.log(location.hostname + "【均等】糧変換 to 石：" + OPT_TO_STONE);
 		} else if((OPT_TO_IRON > 0) && ( RES_NOW["iron"] == min_sigen )) {
 			changeResorceToResorce(RICE, OPT_TO_IRON, IRON, ichiba_x, ichiba_y);
-//			console.log(location.hostname + "【均等】糧変換 to 鉄：" + OPT_TO_IRON);
 		}
-//		var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+//		var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 		return;
 	}else{
 
 		if(OPT_RISE_MAX < OPT_TO_WOOD+OPT_TO_STONE+OPT_TO_IRON){
 //			alert("変換する総合計より糧の値を大きくしてください。");
 		}else{
-/*
-			changeResorceToResorce(RICE, OPT_TO_WOOD, WOOD, ichiba_x, ichiba_y);
-			changeResorceToResorce(RICE, OPT_TO_STONE, STONE, ichiba_x, ichiba_y);
-			changeResorceToResorce(RICE, OPT_TO_IRON, IRON, ichiba_x, ichiba_y);
-*/
 			if(CHG_NOW["wood"]			== 1)	{
 				changeResorceToResorce(RICE, OPT_TO_WOOD,		WOOD,		ichiba_x,	ichiba_y);
-//				console.log(location.hostname + "【一括】糧変換 to 木：" + OPT_TO_WOOD);
 			}
 			if(CHG_NOW["stone"] 		== 1)	{
 				changeResorceToResorce(RICE, OPT_TO_STONE,	STONE,	ichiba_x,	ichiba_y);
-//				console.log(location.hostname + "【一括】糧変換 to 石：" + OPT_TO_STONE);
 			}
 			if(CHG_NOW["iron"]	== 1)	{
 				changeResorceToResorce(RICE, OPT_TO_IRON,		IRON,		ichiba_x,	ichiba_y);
-//				console.log(location.hostname + "【一括】糧変換 to 鉄：" + OPT_TO_IRON);
 			}
 
 		}
-//		var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+//		var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 		return;
 	}
 
 	function addShopList(vId,lv,x,y) {
 		var flg = 0;
-		var shoplist = cloadData("ShopList","[]",true,true);
+		var shoplist = cloadData(HOST+"ShopList","[]",true,true);
 		for (var i=0 ; i<shoplist.length ; i++) {
 			if (shoplist[i].vId == vId) {
 				shoplist[i].vId = vId;
@@ -5852,16 +5839,26 @@ function ichibaChange(vId) {
 		if (flg == 0){
 			shoplist.push({"vId":vId, "lv":lv, "x":x, "y":y });
 		}
-		csaveData("ShopList",shoplist,true,true);
+		csaveData(HOST+"ShopList",shoplist,true,true);
+		// 市場情報が更新されたら表示しなおし
+		if ( getStayMode() ) {
+			closeIniBilderBox()
+			openIniBilderBox()
+		}
 	}
 
 	function delShopList(vId) {
-		var shoplist = cloadData("ShopList","[]",true,true);
+		var shoplist = cloadData(HOST+"ShopList","[]",true,true);
 		for (var i=0;i<shoplist.length;i++){
 			if (shoplist[i].vId == vId) {
 				shoplist.splice(i,1);
-			csaveData("ShopList",shoplist,true,true);
+				csaveData(HOST+"ShopList",shoplist,true,true);
 			}
+		}
+		// 市場情報が更新されたら表示しなおし
+		if ( getStayMode() ) {
+			closeIniBilderBox()
+			openIniBilderBox()
 		}
 	}
 }
@@ -5878,12 +5875,15 @@ function changeResorceToResorce(from, tc, to, x, y) {
 	c['tf_id'] = parseInt(from);
 	c['tt_id'] = parseInt(to);
 	j$.post("http://"+HOST+"/facility/facility.php?x=" + parseInt(x) + "&y=" + parseInt(y) + "#ptop",c,function(){});
-	var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+	var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 
 }
 
 //自動寄付処理
 function autoDonate() {
+
+debugLog("=== Start autoDonate ===");
+
 	if(OPT_KIFU != 1) {
 		//alert("自動寄付未指定");
 		return;
@@ -5891,14 +5891,13 @@ function autoDonate() {
 
 	//糧が指定量より多いかチェック
 	if($("rice").innerHTML < OPT_RISE_KIFU_MAX) {
-		//alert("糧が" + OPT_RISE_KIFU_MAX + "未満");
 		return;
 	}
 
 
 	sendDonate(OPT_RISE_KIFU);
 //@@@
-//	var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+//	var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 
 }
 
@@ -5906,7 +5905,7 @@ function autoDonate() {
 function sendDonate(rice) {
 /*
 	var data = "contributionForm=&wood=0&stone=0&iron=0&rice=" + rice + "&contribution=1";
-	var tid=setTimeout(function(){
+	var tid=unsafeWindow.setTimeout(function(){
 		GM_xmlhttpRequest({
 			method:"POST", 
 			url:"http://" + HOST + "/alliance/level.php",
@@ -5925,17 +5924,17 @@ function sendDonate(rice) {
 	c['rice'] = parseInt(rice);
 	c['contribution'] = 1;
 	j$.post("http://"+HOST+"/alliance/level.php",c,function(){});
-	var tid=setTimeout(function(){location.reload(false);},INTERVAL);
+	var tid=unsafeWindow.setTimeout(function(){location.reload(false);},INTERVAL);
 }
 
 //内政スキルの使用
 function Auto_Domestic() {
-	// ＠＠　コメントアウト　＠＠
-	//if (!OPT_DOME) {return;} //設定してなければ戻る
-	//return;
-	//http://m13.3gokushi.jp/card/domestic_setting.php#ptop
-	
-	var tid=setTimeout(function(){
+
+debugLog("=== Start Auto Domestic ===");
+
+	DomesticFlg = false;
+
+	var tid=unsafeWindow.setTimeout(function(){
 		GM_xmlhttpRequest({
 			method:"GET", 
 			url:"http://" + HOST + "/card/domestic_setting.php",
@@ -5946,29 +5945,51 @@ function Auto_Domestic() {
 				var htmldoc = document.createElement("html");
 			        htmldoc.innerHTML = x.responseText;
 			        
-		        	var skillElem = document.evaluate('//*[@class="skill"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-		        	console.log(skillElem);
-				if(skillElem.snapshotLength < 1){return;}
-
-				for(i=1;i<=skillElem.snapshotLength;i++){
+	 		       	var skillElem = document.evaluate('//td[@class="skill"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+				for(i=0;i<skillElem.snapshotLength;i++){
 					var skillTag = trim(skillElem.snapshotItem(i).innerHTML);
-//					alert(":" + skillTag.substring(skillTag.indexOf("href=",0)+6,skillTag.indexOf("\"",skillTag.indexOf("href=",0)+7)));
 					var AutoSkillFlg = 0;
-					// ＠＠ ここから ＠＠
+
 					for(z=1;z<DASkill.length;z++){
 						if( (OPT_DOME[z]==1) && ( (skillTag.indexOf(DASkill[z],0) > 1)) ){
-//							console.log(OPT_DOME[z] + " : " + DASkill[z] + " : " + skillTag.indexOf(DASkill[z],0));
 							var link = skillTag.substring(skillTag.indexOf("href=",0)+6,skillTag.indexOf("\"",skillTag.indexOf("href=",0)+7));
 							do {
 								link = link.replace(/&amp;/,"&");
 							}while(link.indexOf("&amp;",0) > 1)
-							GM_xmlhttpRequest({	method:"GET", url:"http://" + HOST + link, headers:{"Content-type":"text/html"}, overrideMimeType:'text/html; charset=utf-8',	onload:function(x){} });
-//							console.log("http://" + HOST + link);
-							return;
+							DomesticFlg    = true;
+
+							GM_xmlhttpRequest({	method:"GET", url:"http://" + HOST + link, headers:{"Content-type":"text/html"}, overrideMimeType:'text/html; charset=utf-8',	onload:function(x){
+								debugLog("内政スキル使用");
+								if (OPT_BLD == "AC") { 	setVillageFacility();	}	// 拠点建築チェック
+								if (OPT_BLD == "BS") { 	setVillageFacility2();	}	// 宿舎ビルド＆スクラッチ
+
+								getSoldier();			    // 自動造兵処理
+								autoLvup();			    // 自動武器・防具強化
+								ichibaChange(vId);		    // 市場処理
+								autoDonate();			    // 自動寄付処理
+
+								DomesticFlg = false;
+							} });
+							while(1){
+								if (DomesticFlg == false) {
+									debugLog("== END Auto_Domestic==");
+									break;
+								}
+								Thread.sleep(100);	// 100ms 停止
+							}
+							if (DomesticFlg == false) { break; }
 						}
 					}
-					// ＠＠　ここまで　＠＠
 				}
+				debugLog("内政スキル未使用");
+				if (OPT_BLD == "AC") { 	setVillageFacility();	}	// 拠点建築チェック
+				if (OPT_BLD == "BS") { 	setVillageFacility2();	}	// 宿舎ビルド＆スクラッチ
+
+				getSoldier();			    // 自動造兵処理
+				autoLvup();			    // 自動武器・防具強化
+				ichibaChange(vId);		    // 市場処理
+				autoDonate();			    // 自動寄付処理
+
 			}
 		});
 	},INTERVAL);
@@ -6010,7 +6031,6 @@ if ((typeof GM_getValue == 'undefined') || (GM_getValue('a', 'b') == undefined))
 			opera.postError(message);
 		return;
 		}
-		console.log(message);
 	};
 
 	GM_registerMenuCommand = function(name, funk) {
@@ -6064,7 +6084,6 @@ function ccreateCheckBoxKai2(container, id, def, text, title, left )
 
 	var def2 = id  + ""  + "[" + def + "]";
 
-	//console.log(def2 + " = " + eval(def2));
 	if( eval(def2) ) cb.checked = true;
 	
 	var lb = d.createElement("label");
@@ -6081,7 +6100,6 @@ function ccreateCheckBoxKai2(container, id, def, text, title, left )
 	tb.style.verticalAlign = "middle";
 	tb.style.textAlign = "right";
 	tb.style.paddingRight = "3px";
-	//console.log(id  + "LV"  + "[" + def + "] =" + eval(id  + "LV"  + "[" + def + "]"));
 	tb.size = 4;
 	
 	dv.appendChild(cb);
@@ -6135,8 +6153,7 @@ function getVillageActions() {
 		var newAction = new Array();
 		
 		//ステータス
-		var buildStatusElem = document.evaluate('./span[@class="buildStatus"]/a',
-			paItem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		var buildStatusElem = document.evaluate('./span[@class="buildStatus"]/a', paItem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 		var buildStatus;
 		if (buildStatusElem.snapshotLength > 0) {
 			//施設建設
@@ -6165,11 +6182,12 @@ function getVillageActions() {
 		newAction[IDX2_STATUS] = buildStatus;
 		
 		//施設建設完了時刻
-		var buildClockElem = document.evaluate('./span[@class="buildClock"]',
-			paItem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		var buildClockElem = document.evaluate('./span[@class="buildClock"]', paItem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 		var clock = buildClockElem.snapshotItem(0).innerHTML;
 		newAction[IDX2_TIME] = generateDateString(computeTime(clock));
-		
+
+//		console.log(generateDateString(computeTime(clock)));
+
 		actions1.push(newAction);
 	}
 	
@@ -6200,7 +6218,7 @@ function getVillageActions() {
 			paItem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 		var clock = buildClockElem.snapshotItem(0).innerHTML;
 		newAction[IDX2_TIME] = generateDateString(computeTime(clock));
-		
+
 		actions2.push(newAction);
 	}
 	
@@ -6369,29 +6387,63 @@ function deleteAction(key) {
 }
 
 //施設内作業中取得
-function getTrainingSoldier() {
+function getTrainingSoldier(htmldoc) {
 	var data = getMyVillage();
 	data[IDX_ACTIONS] = new Array();
-	
+	var tt={};
 	//施設名
 	var facilityName = "";
-	var h2Elem = document.evaluate('//*[@id="gray02Wrapper"]/h2',
-		document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	var h2Elem = document.evaluate('//*[@id="gray02Wrapper"]/h2', htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 	if (h2Elem.getSnapshotLength != 0) {
 		facilityName = trim(h2Elem.snapshotItem(0).innerHTML);
 	}
-	
-	//作業種別
-	var actionType = TYPE_FACILITY + getParameter("x") + getParameter("y");
+	// 作成数の兵数と兵種
+	var mSolName = document.evaluate('//th[@class="mainTtl"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+//	var mSolNum = document.evaluate('//td',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	var mSolNum = document.evaluate('//*[@class="commonTables"]//td',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	// 作成できる兵種の種類数
+
+	var mSolTypeT = document.evaluate('//table[@class="commonTables"]',htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	if (mSolTypeT.snapshotLength > 2) {
+		var mSolType = document.evaluate('//*[@class="mainTtl"]',mSolTypeT.snapshotItem(1), null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		for(var r=1;r < mSolType.snapshotLength;r++) {
+			tt[r-1] = new Array()
+			tt[r-1] = mSolType.snapshotItem(r).innerHTML
+			var endflg = false;
+			if (r > 1) {
+				for (var q=0;q<r-1;q++) {
+					if (tt[q] == mSolType.snapshotItem(r).innerHTML) {
+						endflg = true;
+						break;
+					}
+				}
+			}
+			if (endflg) {
+				var mSolTypeNum = r - 1;
+				break;
+			}
+		}
+	}
+	// 施設が最大レベルかの判断
+	var commentNum = document.evaluate('//*[@class="lvupFacility"]/*[@class="main"]', htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	if (commentNum.snapshotItem(0).innerHTML.match("最大レベル")) {
+		maxLv = 3;
+	} else {
+		maxLv = 0;
+	}
 
 	//作業中情報取得
 	var idx = 0; 
 	while (1) {
-		var clockElem = document.getElementById("area_timer" + idx);
-		if (clockElem == undefined) break;
+		var actionType = TYPE_FACILITY + facilityName;
+
+		var clockElem = document.evaluate('//*[@id=' + escapeXPathExpr("area_timer" + idx) + ']', htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotItem(0);
+		if (clockElem == undefined) {
+			saveVillage(data, actionType);		// 研究所で未研究の場合過去の研究情報の削除
+			break;
+		}
 		
-		var mainTtls = document.evaluate('../../../tr/th[@class="mainTtl"]',
-			clockElem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		var mainTtls = document.evaluate('../../../tr/th[@class="mainTtl"]', clockElem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 		if (mainTtls.snapshotLength == 0) break;
 		var clock = trim(clockElem.innerHTML);
 		if (clock == "") break;
@@ -6400,9 +6452,22 @@ function getTrainingSoldier() {
 		if (mainTtlElem == undefined) break;
 		var status = trim(mainTtlElem.innerHTML);
 		if (status == "") break;
-		
+
+		var actionType = TYPE_FACILITY + facilityName;
+
 		data[IDX_ACTIONS][idx] = new Array();
-		data[IDX_ACTIONS][idx][IDX2_STATUS] = facilityName + ":" + status;
+
+		if (facilityName == "鍛冶場" || facilityName == "防具工場" || facilityName == "研究所") { 
+			data[IDX_ACTIONS][idx][IDX2_STATUS] = facilityName + ":" + status;
+		} else {
+			try {
+
+				data[IDX_ACTIONS][idx][IDX2_STATUS] = facilityName + ":" + status + "(" + mSolNum.snapshotItem(8 + mSolTypeNum + (mSolTypeNum * 5) + (idx * 4) - (1 * maxLv)).innerHTML + ")";
+			}catch(e) {
+				data[IDX_ACTIONS][idx][IDX2_STATUS] = facilityName + ":" + status + " (error)";
+			}
+
+		}
 		data[IDX_ACTIONS][idx][IDX2_TIME] = generateDateString(computeTime(clock));
 		data[IDX_ACTIONS][idx][IDX2_TYPE] = actionType;
 		data[IDX_ACTIONS][idx][IDX2_DELETE] = false;
@@ -6410,12 +6475,8 @@ function getTrainingSoldier() {
 		
 		idx++;
 	}
-	
+
 	saveVillage(data, actionType);
-	if ( getStayMode() ) {
-		closeIniBilderBox()
-		openIniBilderBox()
-	}
 }
 
 function getMyVillage() {
@@ -6441,20 +6502,15 @@ function getMyVillage() {
 function getMyXY() {
 	var d = document;
 	var $x = function(xp,dc) {
-		return document.evaluate(xp, dc||d, null, 
-			XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+		return document.evaluate(xp, dc||d, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 	};
 
-
 	var gnaviorgNav = d.getElementById("gnavi");
-    if(gnaviorgNav) {
-    
+	if(gnaviorgNav) {
 		var nowLoc = $x('id("gnavi")//a[contains(@href,"map.php")]');
-        }else{
- 		var nowLoc = $x('id("gNav")//a[contains(@href,"map.php")]');}
-   
-
-
+	}else{
+		var nowLoc = $x('id("gNav")//a[contains(@href,"map.php")]');
+	}
 
 	if (!nowLoc) return null;
 
@@ -6463,30 +6519,25 @@ function getMyXY() {
 		return xy[1]+","+xy[2];
 	}
 }
-
 //内政スキル取得
-function getDomesticSkill() {
+function getDomesticSkill(htmldoc) {
 	var data = getMyVillage();
-		console.log(data);
-
 	data[IDX_ACTIONS] = new Array();
-	
-	for (var i = 0; i < 3; i++) {
-		var clockElem = document.getElementById("area_timer" + i);
+	var i = -1;
+	// 内政武将名
+	var Name = document.evaluate('//td/a[@class="thickbox"]', htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	// 使用中
+	var useSkill = document.evaluate('//*[@class="use"]', htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    if (useSkill.snapshotLength != 0) {
+		i += 1;
+		var clockElem = document.evaluate('//*[@id="area_timer0"]', htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotItem(0);
 		if (clockElem != undefined) {
 			var clock = trim(clockElem.innerHTML);
 			data[IDX_ACTIONS][i] = new Array();
-			
-			var statusElem = document.evaluate('..',
-				clockElem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotItem(0);
-			var status = "";
-			if (statusElem.className == "status") status = "使用";
-			else if (statusElem.className == "recovery") status = "回復";
-			
-			var nameLink = document.evaluate('../td/a',
-				statusElem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-			status = "内政:" + status + "(" + trim(nameLink.snapshotItem(0).innerHTML) + ")";
-			
+			var statusElem = document.evaluate('..', clockElem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotItem(0);
+			var status = "使用";
+			var nameLink = document.evaluate('../td/a',	statusElem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+			status = "内政:" + status + "(" + trim(Name.snapshotItem(1).innerHTML) + "：" + trim(nameLink.snapshotItem(0).innerHTML) + ")";
 			data[IDX_ACTIONS][i][IDX2_STATUS] = status;
 			data[IDX_ACTIONS][i][IDX2_TIME] = generateDateString(computeTime(clock));
 			data[IDX_ACTIONS][i][IDX2_TYPE] = TYPE_DOMESTIC;
@@ -6494,8 +6545,53 @@ function getDomesticSkill() {
 			data[IDX_ACTIONS][i][IDX2_ROTATION] = 0;
 		}
 	}
+	// 回復中
+	var RecoverySkill = document.evaluate('//*[@class="recovery"]', htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	if (RecoverySkill.snapshotLength != 0) {
+		if (useSkill.snapshotLength != 0) {
+			// 使用中スキルがある
+
+			for (var x = 0; x < useSkill.snapshotLength ; x++) {
+				i += 1;
+				data[IDX_ACTIONS][i] = new Array();
+
+				var SkillName = RecoverySkill.snapshotItem(x).innerHTML.split("<");		// スキル名
+				var t = RecoverySkill.snapshotItem(x).innerHTML.split("<span>"); 		// 回復時間
+				var SkillRTime = t[1].substr(0,8);
+				var status = "回復";
+				status = "内政:" + status + "(" + trim(Name.snapshotItem(1).innerHTML) + "：" + SkillName[0] + ")";
+				data[IDX_ACTIONS][i][IDX2_STATUS] = status;
+				data[IDX_ACTIONS][i][IDX2_TIME] = generateDateString(computeTime(SkillRTime));
+				data[IDX_ACTIONS][i][IDX2_TYPE] = TYPE_DOMESTIC;
+				data[IDX_ACTIONS][i][IDX2_DELETE] = false;
+				data[IDX_ACTIONS][i][IDX2_ROTATION] = 0;
+			}
+		} else {
+			// 使用中スキルがない
+			for (var x = 0; x < 3; x++) {
+				var clockElem = document.evaluate('//*[@id=' + escapeXPathExpr("area_timer" + x) + ']', htmldoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotItem(0);
+				if (clockElem != undefined) {
+					var clock = trim(clockElem.innerHTML);
+					i += 1;
+					data[IDX_ACTIONS][i] = new Array();
+
+					var SkillName = RecoverySkill.snapshotItem(x).innerHTML.split("<");		// スキル名
+					var statusElem = document.evaluate('..', clockElem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotItem(0);
+					var status = "回復";
+					var nameLink = document.evaluate('../td/a',	statusElem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+					status = "内政:" + status + "(" + trim(nameLink.snapshotItem(0).innerHTML) + "：" + SkillName[0] + ")";
+					data[IDX_ACTIONS][i][IDX2_STATUS] = status;
+					data[IDX_ACTIONS][i][IDX2_TIME] = generateDateString(computeTime(clock));
+					data[IDX_ACTIONS][i][IDX2_TYPE] = TYPE_DOMESTIC;
+					data[IDX_ACTIONS][i][IDX2_DELETE] = false;
+					data[IDX_ACTIONS][i][IDX2_ROTATION] = 0;
+				}
+			}
+		}
+	}
+
 	saveVillage(data, TYPE_DOMESTIC);
-	if ( getStayMode() ) {
+ 	if ( getStayMode() ) {
 		closeIniBilderBox()
 		openIniBilderBox()
 	}
@@ -6554,3 +6650,36 @@ function xpath(query,targetDoc) {
 	return document.evaluate(query, targetDoc, null,XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 }
 
+function escapeXPathExpr(text) {
+    var matches = text.match(/[^"]+|"/g);
+
+    function esc(t) {
+        return t == '"' ? ('\'' + t + '\'') : ('"' + t + '"');
+    }
+
+    if (matches) {
+        if (matches.length == 1) {
+            return esc(matches[0]);
+        }
+        else {
+            var results = [];
+            for (var i = 0; i < matches.length; i ++) {
+                results.push(esc(matches[i]));
+            }
+            return 'concat(' + results.join(', ') + ')';
+        }
+    }
+    else {
+        return '""';
+    }
+}
+
+function forInt(num,def){
+//	console.log(num + " : " + def);
+	if (def == undefined) {		def = 0;	}
+	if (isNaN(parseInt(num))) {
+		return def;
+	} else {
+		return parseInt(num);
+	}
+}
