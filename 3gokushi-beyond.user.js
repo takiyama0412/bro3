@@ -2918,7 +2918,7 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
             if (!tmp) return null;
             ret['defence_score'] = parseInt(tmp[1], 10);
 
-            tmp = html.match(/<\/a>\(本拠地\)<\/td>[^<]*<td[^>]*>([\-0-9]+),([\-0-9]+)<\/td>/);
+            tmp = html.match(/<\/a>\n\(本拠地\)\t+<\/td>[^<]*<td[^>]*>([\-0-9]+),([\-0-9]+)<\/td>/);
             if (!tmp) return null;
             ret['x'] = parseInt(tmp[1], 10);
             ret['y'] = parseInt(tmp[2], 10);
