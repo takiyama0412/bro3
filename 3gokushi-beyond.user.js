@@ -2,22 +2,24 @@
 // @name           3gokushi-Beyond
 // @namespace      http://www1.ocn.ne.jp/~hatt/3gkb/
 // @description    ブラウザ三国志Beyond ゆ
-// @author         hatt, romer, aro, craford, et al.
+// @author         hatt, romer, aro, et al.
 // @include        http://*.3gokushi.jp/*
 // @include        https://*.3gokushi.jp/*
 // @include		   http://*.nexon.com/*
 // @icon           http://asunaro.com/en/tools/beyond/icon.png
-// @version        1.29.3.07
+// @version        1.29.4.27
+// @delay 100
+
 // ==/UserScript==
 
 // 2012.01.12 暫定対応(6841行付近)
-// 2012.04.25 仕様変更対応
+// 2012.04.27 兵士作成の完了時間、マップ上の兵士到着時間、アイテムショップの小さいボタン
 
 ( function() {
     if (document.getElementById('beyond_basepanel')) return ;
 
     var PROGRAM_NAME = 'ブラウザ三国志Beyond';
-    var VERSION = '1.29.3.06';
+    var VERSION = '1.29.1.4';
     var DIST_SRC = 'http://www1.ocn.ne.jp/~hatt/3gkb/';
     var IMG_DIR = '/20110427-01/img/';
 
@@ -441,9 +443,9 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
         OPT_XYLINK_NK = cloadData('OPT_XYLINK_NK', 0);
         OPT_LARGEICON = cloadData('OPT_LARGEICON', 0);
         OPT_TTBL = cloadData('OPT_TTBL', 1);
-        OPT_MEMO = cloadData('OPT_MEMO', 0);
-        OPT_MEMO_FONT_SIZE = cloadData('OPT_MEMO_FONT_SIZE', '10');
-        OPT_MEMO_WIDTH = cloadData('OPT_MEMO_WIDTH', '20');
+        OPT_MEMO = cloadData('OPT_MEMO', 1);
+        OPT_MEMO_FONT_SIZE = cloadData('OPT_MEMO_FONT_SIZE', '9');
+        OPT_MEMO_WIDTH = cloadData('OPT_MEMO_WIDTH', '35');
         OPT_MEMO_HEIGHT = cloadData('OPT_MEMO_HEIGHT', '5');
         OPT_MEMO_COUNT = cloadData('OPT_MEMO_COUNT', '1');
         OPT_DETAILS = cloadData('OPT_DETAILS', 1);
@@ -456,12 +458,12 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
         OPT_ALLY_IS = cloadData('OPT_ALLY_IS', 1);
         OPT_ALLY_XY = cloadData('OPT_ALLY_XY', 1);
         OPT_ALLY_CSV = cloadData('OPT_ALLY_CSV', 0);
-        OPT_RES_T = cloadData('OPT_RES_T', 0);
+        OPT_RES_T = cloadData('OPT_RES_T', 1);
         OPT_RES_TIME = cloadData('OPT_RES_TIME', 1);
         OPT_REMOVELIST = cloadData('OPT_REMOVELIST', 1);
         OPT_MAPLIST = cloadData('OPT_MAPLIST', 0);
-        OPT_TTDISTANCE = cloadData('OPT_DISTANCE', 0);
-        OPT_TTDISTANCE_ITEMS = cloadData('OPT_DISTANCE_ITEMS', '["槍兵(7)", "弓兵(5)", "騎兵(12)", "矛槍兵(10)", "弩兵(8)", "近衛騎兵(15)", "衝車(3)", "投石機(6)"]', true, true);
+        OPT_TTDISTANCE = cloadData('OPT_DISTANCE', 1);
+        OPT_TTDISTANCE_ITEMS = cloadData('OPT_DISTANCE_ITEMS', '["槍兵(7)", "弓兵(5)", "騎兵(12)", "矛槍兵(10)", "弩兵(8)", "近衛騎兵(15)", "衝車(3)", "投石機(6)", "高速騎馬武将(30)"]', true, true);
         OPT_TTALLYPRSN = cloadData('OPT_TTALLYPRSN', 1);
         OPT_USER_STAR = cloadData('OPT_USER_STAR', 1);
         OPT_USER_LEVEL = cloadData('OPT_USER_LEVEL', 1);
@@ -469,7 +471,7 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
         OPT_TBREST = cloadData('OPT_TBREST', 1);
         OPT_DELMSG = cloadData('OPT_DELMSG', 1);
         OPT_TSENDTIME = cloadData('OPT_TSENDTIME', 1);
-        OPT_SMALLBTN = cloadData('OPT_SMALLBTN', 0);
+        OPT_SMALLBTN = cloadData('OPT_SMALLBTN', 1);
         OPT_ATTACKMAP = cloadData('OPT_ATTACKMAP', 1);
         OPT_CARD_CMB = cloadData('OPT_CARD_CMB', 1);
         if (isNarrow) OPT_YOROZU = cloadData('OPT_YOROZU', 0);
@@ -478,14 +480,14 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
         OPT_TRDHELP = cloadData('OPT_TRDHELP', 1);
         OPT_BLINKBLD = cloadData('OPT_BLINKBLD', 0);
         OPT_SEISAN = cloadData('OPT_SEISAN', 1);
-        OPT_NO_ALERT = cloadData('OPT_NO_ALERT', 0);
+        OPT_NO_ALERT = cloadData('OPT_NO_ALERT', 1);
         OPT_LOGBOX = cloadData('OPT_LOGBOX', 0);
         OPT_LOGBOX_FONT_SIZE = cloadData('OPT_LOGBOX_FONT_SIZE', '9');
         OPT_LOGBOX_WIDTH = cloadData('OPT_LOGBOX_WIDTH', '20');
         OPT_LOGBOX_HEIGHT = cloadData('OPT_LOGBOX_HEIGHT', '5');
         OPT_LOG_EXP_TIME = cloadData('OPT_LOG_EXP_TIME', '180');
-        OPT_CASTLE_AID = cloadData('OPT_CASTLE_AID', 0);
-        OPT_NEXT_FAME = cloadData('OPT_NEXT_FAME', 0);
+        OPT_CASTLE_AID = cloadData('OPT_CASTLE_AID', 1);
+        OPT_NEXT_FAME = cloadData('OPT_NEXT_FAME', 1);
         OPT_TIMER_DEPOT = cloadData('OPT_TIMER_DEPOT', 0);
         if (isNarrow) OPT_VILLAGE_LIST_BOX = cloadData('OPT_VILLAGE_LIST_BOX', 1);
     }
@@ -519,7 +521,7 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
         OPT_REMOVELIST = cgetCheckBoxValue('OPT_REMOVELIST');
         OPT_MAPLIST = cgetCheckBoxValue('OPT_MAPLIST');
         OPT_TTDISTANCE = cgetCheckBoxValue('OPT_DISTANCE');
-        OPT_TTDISTANCE_ITEMS = getDistanceBox(8);
+        OPT_TTDISTANCE_ITEMS = getDistanceBox(9);
         OPT_TTALLYPRSN = cgetCheckBoxValue('OPT_TTALLYPRSN');
         OPT_USER_STAR = cgetCheckBoxValue('OPT_USER_STAR');
         OPT_USER_LEVEL = cgetCheckBoxValue('OPT_USER_LEVEL');
@@ -787,7 +789,7 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
         ccreateCheckBox(td3, 'OPT_ATTACKMAP', OPT_ATTACKMAP, '出兵先表示', 'マップ画面で、現在出兵中の領地/拠点に目印を付けます', 0);
         ccreateCheckBox(td3, 'OPT_TSENDTIME', OPT_TSENDTIME, '出発時刻計算', '出兵画面で、到着希望時間から出発時刻を逆算します', 0);
         ccreateCheckBox(td3, 'OPT_DISTANCE', OPT_TTDISTANCE, '移動時間表示', 'すべての[出兵]リンクのツールチップを移動時間の目安表示に変更します', 0);
-        createDistanceBox(td3, OPT_TTDISTANCE_ITEMS, 8);
+        createDistanceBox(td3, OPT_TTDISTANCE_ITEMS, 9);
         ccreateBlankRow(td3, 0);
 
         ccreateCheckBox(td4, 'OPT_LARGEICON', OPT_LARGEICON, '大きめアイコン', '拠点リンク、ブックマークのアイコンを14x14サイズにします', 0);
@@ -813,7 +815,7 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
     function createDistanceBox(container, items, num) {
         var sels = ['その他', '無し', '剣兵(6)',
                     '槍兵(7)', '弓兵(5)', '騎兵(12)', '斥候(9)', '衝車(3)',
-                    '矛槍兵(10)', '弩兵(8)', '近衛騎兵(15)', '斥候騎兵(20)', '投石機(6)'];
+                    '矛槍兵(10)', '弩兵(8)', '近衛騎兵(15)', '斥候騎兵(20)', '投石機(6)', '高速騎馬武将(30)'];
         for (var i = 0; i < num; i++) {
             var src = '';
             if (sels.indexOf(items[i]) != -1) src = items[i];
@@ -2728,17 +2730,21 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
         //同盟員座標表示
         function allianceXY() {
             //座標の収集
+                console.log( 'APIの解説はじめるよー' );                       
+
             if (location.pathname =='/user/' || location.pathname == '/user/index.php') {
                 if (USER_ID || URL_PARAM.user_id) {
                     var uid, aid;
                     if (URL_PARAM.user_id) uid = URL_PARAM.user_id;
                     else uid = USER_ID;
-                    var allytd = $s('//table[contains(concat(" ", normalize-space(@class), " "), " commonTables ")]//tr[3]//td[4]');
+//                    var allytd = $s('//table[contains(concat(" ", normalize-space(@class), " "), " commonTables ")]//tr[3]//td[4]');
+                    var allytd = $s("//table[@class=\"commonTables\"]//tr[3]//td[4]");
                     if (!allytd) return;
                     var aids = allytd.innerHTML.match(/\/alliance\/info\.php\?id\=(\d+)/);
+                    
                     if (!aids) return;
                     aid = aids[1];
-                    var table = $s('//table[contains(concat(" ", normalize-space(@class), " "), " commonTables ")]');
+                    var table = $s("//table[@class=\"commonTables\"]");
                     if (table) {
                         var xy = getXYfromUserHTML(table.innerHTML);
                         if (xy) {
@@ -2755,11 +2761,11 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
                     if (URL_PARAM.id) aid = URL_PARAM.id;
                     else aid = ALLY_ID;
 
-                    var head1 = $s('//table[@summary="ランキング"]//tr[1]//th[contains(concat(" ", normalize-space(@class), " "), " ttl ")]');
+                    var head1 = $s("//table[@summary=\"ランキング\"]//tr[1]//th[@class=\"ttl\"]");
                     if (head1) {
                         head1.setAttribute('colspan', parseInt(head1.getAttribute('colspan'), 10) + 1 + '');
                     }
-                    var head2 = $s('//table[@summary="ランキング"]//tr[2]');
+                    var head2 = $s("//table[@summary=\"ランキング\"]//tr[2]");
                     if (head2) {
                         var th = d.createElement('th');
                         th.className = 'all';
@@ -2779,7 +2785,7 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
 
                             if (confirm('同盟員の情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい') == false) return;
                             running = true;
-                            var trs = $x('//table[@summary="ランキング"]//tr[position()>2]');
+                            var trs = $x("//table[@summary=\"ランキング\"]//tr[position()>2]");
 
                             var now_num = 0;
                             var all_num = trs.length;
@@ -2871,7 +2877,11 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
         }
 
         function getXYfromUserHTML(html) {
-            var xy = html.match(/\(本拠地\)[^<]*<\/td>[^<]*<td[^>]*>([\-0-9]+),([\-0-9]+)<\/td>/);
+//            var xy = html.match(/<\/a>\(本拠地\)<\/td>[^<]*<td[^>]*>([\-0-9]+),([\-0-9]+)<\/td>/);
+              
+              var xy = html.match(/<\/a>\n\(本拠地\)\t+<\/td>[^<]*<td[^>]*>([\-0-9]+),([\-0-9]+)<\/td>/);
+
+ //           var xy = html.match(/<\/a>\(本拠地\)<\/td>[^<]*<td[^>]*>([\-0-9]+),([\-0-9]+)<\/td>/);
             if (xy) {
                 return {'x':parseInt(xy[1], 10), 'y':parseInt(xy[2], 10)};
             }
@@ -4343,7 +4353,6 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
             csaveData('TrainingLevels', newLists, true, true);
         }
     }
-
     //同盟/君主表示（ツールチップ）
     function disp_ToolTipsAllyPerson() {
         var links = $x('//a[(contains(@href, "village_change.php") or contains(@href, "land.php")) and not(contains(@href, "TB_inline") or contains(@href, "from") or contains(@onmouseover, "bigmap-caption"))]');
@@ -4395,6 +4404,7 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
             dv.appendChild(d.createTextNode('君主 : ...'));
             tw.appendChild(dv);
             $('beyond_floatpanel').appendChild(tw);
+//            $('beyond_floatpanel').appendChild(tw);
 
             cajaxRequest(url, 'GET', '', function(req) {
                 var tw = $('beyond_ToolTipsWindow');
@@ -5087,7 +5097,8 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
                 btn_getbusho : {width : 20, start : -2},
                 btn_bushoduel : {width : 27, start : -1},
                 btn_invitefriend : {width : 27, start : -9},
-                btn_busyobook : {width :27,	start : -55}
+                btn_busyobook : {width :27,	start : -55},
+                hbtn_itemshop945 : {width :27,	start : -1}
             };
         } else {
             btnConfs = {
@@ -5096,7 +5107,8 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
                 hbtn_getbusho : {width : 20, start : -2},
                 hbtn_yorodudas : {width : 25, start : -2},
                 hbtn_bushoduel : {width : 27, start : -1},
-                btn_busyobook : {width :27,	start : -55}
+                btn_busyobook : {width :27,	start : -55},
+            
             };
 
         }
@@ -5275,7 +5287,7 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
                 }
                 var mapAreaContents = null;
                 for (var i = 0; i < lists.length; i++) {
-                    mapAreaContents = $x('id("mapOverlayMap")/area[contains(@href, "x=' + lists[i].x + '") and contains(@href, "y=' + lists[i].y + '")] | id("map51-content")//li/div/a[contains(@href, "x=' + lists[i].x + '") and contains(@href, "y=' + lists[i].y + '")][1]');
+                    mapAreaContents = $s('id("mapOverlayMap")/area[contains(@href, "x=' + lists[i].x + '") and contains(@href, "y=' + lists[i].y + '")] | id("map51-content")//li/div/a[contains(@href, "x=' + lists[i].x + '") and contains(@href, "y=' + lists[i].y + '")][1]');
 
                     if (mapType & MAP_TYPE.NORMAL) {
                         var no = cgetMapNofromXY(lists[i].x, lists[i].y, cx, cy, mapType);
@@ -5464,7 +5476,7 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
 
     //拠点生産力表示
     function disp_Seisan() {
-        if (location.pathname != '/village.php') return;
+//        if (location.pathname != '/village.php') return;
 
         var icon = IMG_DIR  + 'common/sidebar/icon_production.gif';
         var elms = ccreateSideBox('beyond_sidebox_suzanseisan', icon, '拠点生産力');
@@ -5479,10 +5491,15 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
     }
 
     function cgetCurrentBaseXY() {
+	var gnaviorgNav = d.getElementById("gnavi");
+	console.log(gnaviorgNav);
+
+    if(gnaviorgNav) {
         var nowLoc = $s('id("gnavi")//a[contains(@href, "map.php")]');
-        if( !nowLoc ){
-            nowLoc = $s('id("gNav")//a[contains(@href,"map.php")]');
-        }
+        }else{
+        var nowLoc = $s('id("gNav")//a[contains(@href, "map.php")]');};
+       
+console.log(nowLoc);
         if (!nowLoc) return null;
         var xy = nowLoc.href.match(/x=([\-0-9]+)&y=([\-0-9]+)/i);
         if (xy) {
@@ -5523,7 +5540,7 @@ window.addEventListener("load",function(){setTimeout("rewriteTimer()",500);},fal
     }
 
     function caddDate(baseDate, timetxt) {
-        var tim = timetxt.match(/^(\d+):(\d+):(\d+)/);
+        var　tim　=　timetxt.match(/(\d+):(\d+):(\d+)/);
         if (!tim) return '';
 
         var dt = new Date(baseDate.getFullYear(),
