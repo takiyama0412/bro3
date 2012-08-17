@@ -2437,6 +2437,7 @@ function file_set(){
 			var speed = document.evaluate('//*[@id="cardWindow_'+b_id+'"]//*[@class="status_speed"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.innerHTML;
 			var cntry = document.evaluate('//*[@id="cardWindow_'+b_id+'"]//*[@class="country"]/img/@title', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent;
 			var pict = document.evaluate('//*[@id="cardWindow_'+b_id+'"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.innerHTML;
+            var toubatsu = document.evaluate('//*[@id="cardWindow_'+b_id+'"]/..//*[@class="statusParameter1"]//tr[last()]/td', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.innerHTML;
 
 			var tbl_col = "";
 			tbl_col += "<tr align=center id='tr_"+b_id+"' name=tbl_tr><input type=hidden name=status id=status_"+b_id+" value=unset>"
@@ -2479,7 +2480,9 @@ function file_set(){
 				setbtn.value = rarerity + name;
 				//setbtn.addEventListener("click",deck_set(b_id),false);
 				btn_area.appendChild(setbtn);
-
+                
+            }else if (type == 7) {
+                if (toubatsu == "300") tbl.innerHTML += tbl_col;
 			}else{
 				tbl.innerHTML += tbl_col;
 			}
@@ -2569,6 +2572,7 @@ function file_set(){
 			var costbtn_i = document.getElementsByName("cost")
 			var status_i = document.getElementsByName("status")
 			var b_id_i = document.getElementsByName("b_id")
+                
 			for( j=0; j<tbl_tr.length; j++ ){
 				if( status_i.item(j).value == "unset" ){
 					if( costbtn_i.item(j).value < b_cost_min ){
@@ -2583,7 +2587,7 @@ function file_set(){
 		document.getElementById("mes").innerHTML = "";
         setTimeout(function() {
             location.href = "http://"+host+"/card/deck.php";
-        }, 1000);
+        }, 2000);
     }
 
 
@@ -2615,7 +2619,7 @@ function deck_set(n){
 		data: data,
 		onload:function(x){console.log(x.responseText);}
 	});
-
+    
 	document.getElementById("cost_"+b_id).value = 0;
 	tbl_tr.style.backgroundColor="yellow";
 	document.getElementById("status_"+n).value = "ondeck"
