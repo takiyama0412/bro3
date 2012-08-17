@@ -2576,7 +2576,7 @@ function file_set(){
 			for( j=0; j<tbl_tr.length; j++ ){
 				if( status_i.item(j).value == "unset" ){
 					if( costbtn_i.item(j).value < b_cost_min ){
-						b_cost_min = costbtn_i.item(j).value;
+						b_cost_min = parseFloat(costbtn_i.item(j).value);
 						b_id = b_id_i.item(j).innerHTML;
 					}
 				}
