@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name           3gokushi_AutoLogin
-// @version        0.9.5
+// @version        0.9.6
 // @namespace      http://puyomonolith.blog83.fc2.com/
-// @description    一定の間隔で自動的にログインします。ログインの間隔はオプション部分の値をいじって変更できます。
+// @description    一定の間隔で自動的にログインします。ログインの間隔はオプション部分の値をいじって変更できます。オレオレ改造版
 // @include        http://*.app0.mixi-platform.com/gadgets/ifr?*&app_id=6598&*
 // @include        http://m*.3gokushi.jp/user/first_login.php#m*
+// @include        http://m*.3gokushi.jp/false/login_sessionout.php*
 // @include        http://mixi.jp/run_appli.pl?id=6598*
 // ==/UserScript==
 
@@ -19,6 +20,10 @@ var interval = 60 * 60 * 2 + 60 * 55;	//デフォルトでは２時間５５分
 
 function $(id){return document.getElementById(id);}
 
+if (location.pathname == "/false/login_sessionout.php") {
+    var s = location.host.split(".")[0];
+    location.href = "http://mixi.jp/run_appli.pl?id=6598&#" + s;
+} else 
 //http://･･･.app0.mixi-platform.com/…（ドキュメント内にmixiボタンなどを子要素にもつiframe）の処理
 if(String(document.location).indexOf("#m") == -1){
 	
@@ -368,7 +373,7 @@ if(String(document.location).indexOf("#m") == -1){
 	};
 	
 	AutoLogin.countDown();
-	
+    
 //自動ログイン用にiframeで呼び出された画面の処理
 } else {
 	
