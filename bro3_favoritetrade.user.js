@@ -5,13 +5,13 @@
 // @description    ブラウザ三国志 トレード関連ツール詰め合わせ by きの。
 // @author         kino.
 // @require	   http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js
-// @version        2.43
+// @version        2.44
 // @icon	   http://chaki.s27.xrea.com/br3/icon.png
 // ==/UserScript==
 
 ( function(){
 
-var version = "2.43";
+var version = "2.44";
 
 var AH_list = ["仁君","弓腰姫の愛","神医の術式","神医の施術","皇后の慈愛","傾国","優雅な調べ","城壁補強"];
 
@@ -1426,26 +1426,41 @@ function AH_setDeck(n,i){
 		GM_setValue(BRO3_AUTO_HEAL_V_ID, v_id);
 
 		auto_heal_flg = 2;
+		//auto_heal_flg = 3;
 
 		GM_setValue(BRO3_AUTO_HEAL_FLG, auto_heal_flg);
 
 		document.getElementById("target_card").value = b_id;
 		document.getElementById("mode").value='set';
 		document.getElementById("deck_file").submit();
+		//var deckset = AH_setDeck0(b_id,v_id);
+		//location.href = "http://"+host+"/village_change.php?village_id="+v_id+"&from=menu&page=/card/domestic_setting.php" ;
 	}
+}
+function AH_setDeck0(n,m){
+		var ssid = document.getElementsByName("ssid").item(0).value;
+		var data = "mode=set&target_card="+n+"&wild_card_flg=&inc_point=&btn_change_flg=&p=1&l=&ssid="+ssid+"&selected_village["+n+"]="+m;
+		GM_xmlhttpRequest({
+			method:"POST", 
+			url:"http://" + host + "/card/deck.php",
+			headers:{"Content-type":"application/x-www-form-urlencoded"},
+			data: data,
+			onload:function(x){console.log(x.responseText);}
+		});
+		return;
 }
 
 if(GM_getValue(BRO3_AUTO_HEAL_B_ID))	var b_id	= GM_getValue(BRO3_AUTO_HEAL_B_ID);
 if(GM_getValue(BRO3_AUTO_HEAL_V_ID))	var v_id	= GM_getValue(BRO3_AUTO_HEAL_V_ID);
 //alert("FLG:"+auto_heal_flg+",B_ID:"+b_id+",V_ID:"+v_id)
 
-if(auto_heal_flg == "2"){setTimeout(AH_STEP2,200);};
-if(auto_heal_flg == "3"){setTimeout(AH_STEP3,200);};
-if(auto_heal_flg == "4"){setTimeout(AH_STEP4,200);};
-if(auto_heal_flg == "5"){setTimeout(AH_STEP5,200);};
-if(auto_heal_flg == "6"){setTimeout(AH_STEP6,200);};
-if(auto_heal_flg == "7"){setTimeout(AH_STEP7,200);};
-if(auto_heal_flg == "8"){setTimeout(AH_STEP8,200);};
+if(auto_heal_flg == "2"){setTimeout(function(){AH_STEP2()},500);};
+if(auto_heal_flg == "3"){setTimeout(function(){AH_STEP3()},500);};
+if(auto_heal_flg == "4"){setTimeout(function(){AH_STEP4()},500);};
+if(auto_heal_flg == "5"){setTimeout(function(){AH_STEP5()},500);};
+if(auto_heal_flg == "6"){setTimeout(function(){AH_STEP6()},500);};
+if(auto_heal_flg == "7"){setTimeout(function(){AH_STEP7()},500);};
+if(auto_heal_flg == "8"){setTimeout(function(){AH_STEP8()},500);};
 
 if(auto_heal_flg >= 2 && path.indexOf("/card/")!=-1){
 	var prtElm = document.getElementById("gray02Wrapper");
@@ -1463,7 +1478,7 @@ if(path.indexOf("/card/domestic_setting.php")!=-1 && document.body.innerHTML.ind
 	btn.value = "設定されている武将をデッキから下ろす";
 	btn.type = "button";
 	btn.addEventListener("click",function(){AH_STEP9(id)},false);
-	document.getElementsByTagName("form").item(1).appendChild(btn);
+	document.getElementsByTagName("form").item(2).appendChild(btn);
 }
 function AH_STEP9(b_id){
 		GM_setValue(BRO3_AUTO_HEAL_B_ID, b_id);
@@ -1483,9 +1498,9 @@ function AH_STEP3(){
 			GM_setValue(BRO3_AUTO_HEAL_FLG, auto_heal_flg);
 			location.href = "http://"+host+"/card/deck.php";
 		}else{
+			document.getElementById("card_radio_"+b_id).checked = true;
 			auto_heal_flg = 4;
 			GM_setValue(BRO3_AUTO_HEAL_FLG, auto_heal_flg);
-			document.getElementById("card_radio_"+b_id).checked = true;
 			document.getElementsByName("input_domestic").item(0).submit();
 		}
 	}else{
@@ -1496,7 +1511,7 @@ function AH_STEP3(){
 function AH_STEP4(){
 	//auto_heal_flg = 5;
 	//GM_setValue(BRO3_AUTO_HEAL_FLG, auto_heal_flg);
-	var s_no = GM_getValue(BRO3_AUTO_HEAL_S_NO) + 2;
+	var s_no = GM_getValue(BRO3_AUTO_HEAL_S_NO) + 3;
 	var skl_num = document.evaluate('//*[@class="general"]//tr[2]/td',document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 
 	for(var k = 0; k < AH_list.length; k++){
@@ -1520,13 +1535,13 @@ function AH_STEP4(){
 function AH_STEP5(){
 	auto_heal_flg = 6;
 	GM_setValue(BRO3_AUTO_HEAL_FLG, auto_heal_flg);
-	document.getElementsByTagName("form").item(1).submit();
+	document.getElementsByTagName("form").item(2).submit();
 }
 
 function AH_STEP6(){
-	auto_heal_flg = 7;
-	GM_setValue(BRO3_AUTO_HEAL_FLG, auto_heal_flg);
-	location.href = "http://"+host+"/card/deck.php";
+    auto_heal_flg = 7;
+    GM_setValue(BRO3_AUTO_HEAL_FLG, auto_heal_flg);
+    location.href = "http://"+host+"/card/deck.php";
 }
 
 function AH_STEP7(){
@@ -1551,6 +1566,20 @@ function AH_STEP8(){
 	GM_setValue(BRO3_AUTO_HEAL_S_NO, 0);
 	GM_setValue(BRO3_AUTO_HEAL_V_ID, 0);
 
+}
+
+function getSSID(){
+	var TempDOM = document.createElement("div");
+	var url = "http://"+host+"/card/deck.php";
+	TempDOM.innerHTML = getContentFromURL(url);
+	TempDOM.id = "TempDOM";
+	TempDOM.style.display = "none";
+	document.body.appendChild(TempDOM);
+
+	var add = '//*[@id="TempDOM"]//*[@id="gray02Wrapper"]//*[@name="ssid"]';
+	var ssid = document.evaluate(add, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.value;
+
+	return ssid;
 }
 
 //AUTO_HEALここまで//
@@ -2278,7 +2307,7 @@ function bulk_set(){
 
 		var sel1 = document.createElement("select");
 		sel1.name = "B_set_type";
-		sel1.innerHTML = "<option value=7>低コスト優先<option value=1>連環セット<option value=2>蜀軍セット<option value=3>魏軍セット<option value=4>呉軍セット<option value=5>群雄セット<option value=6>リスト表示";
+		sel1.innerHTML = "<option value=1>連環セット<option value=2>蜀軍セット<option value=3>魏軍セット<option value=4>呉軍セット<option value=5>群雄セット<option value=6>リスト表示";
 
 		var sel2 = document.createElement("select");
 		sel2.name = "B_set_vil";
@@ -2344,11 +2373,11 @@ function file_unset(){
 		}
 	}
 	document.getElementById("u_unset").value = "完了。";
-	timerID = setTimeout('jump()',10000);
+	timerID = setTimeout(function(){jump()},3000);
 }
 
 function jump(){
-	location.href = "http://"+host+"/card/deck.php";
+	location.reload();
 }
 
 function file_set(){
@@ -2362,7 +2391,7 @@ function file_set(){
 
 	var dc = '//*[@class="deckcost"]';
 	var d_cost = document.evaluate(dc, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.innerHTML;
-	d_cost.match(/([\S]*) \/ ([0-9]*)/);
+	d_cost.match(/([\S]*) \/ ([\S]*)/);
 	var n_cost = RegExp.$1;
 	var M_cost = RegExp.$2;
 	var r_cost = M_cost - n_cost;
@@ -2437,7 +2466,6 @@ function file_set(){
 			var speed = document.evaluate('//*[@id="cardWindow_'+b_id+'"]//*[@class="status_speed"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.innerHTML;
 			var cntry = document.evaluate('//*[@id="cardWindow_'+b_id+'"]//*[@class="country"]/img/@title', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent;
 			var pict = document.evaluate('//*[@id="cardWindow_'+b_id+'"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.innerHTML;
-            var toubatsu = document.evaluate('//*[@id="cardWindow_'+b_id+'"]/..//*[@class="statusParameter1"]//tr[last()]/td', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.innerHTML;
 
 			var tbl_col = "";
 			tbl_col += "<tr align=center id='tr_"+b_id+"' name=tbl_tr><input type=hidden name=status id=status_"+b_id+" value=unset>"
@@ -2480,9 +2508,7 @@ function file_set(){
 				setbtn.value = rarerity + name;
 				//setbtn.addEventListener("click",deck_set(b_id),false);
 				btn_area.appendChild(setbtn);
-                
-            }else if (type == 7) {
-                if (toubatsu == "300") tbl.innerHTML += tbl_col;
+
 			}else{
 				tbl.innerHTML += tbl_col;
 			}
@@ -2559,36 +2585,10 @@ function file_set(){
 			document.getElementById("link_"+b_id).addEventListener("mouseover",popup(b_id,i),false);
 			document.getElementById("link_"+b_id).addEventListener("mouseout",popdown(b_id,i),false);
 		}
-		document.getElementById("mes").innerHTML = "";
+		document.getElementById("mes").innerHTML = ""
 
 
-    } else if( type == 7) {
-		var tbl_tr = document.getElementsByName("tbl_tr");
-		var rcost = document.getElementById("rc").innerHTML;
-
-		for( var i=0; i<tbl_tr.length; i++){
-			var b_id;
-			var b_cost_min = 5;
-			var costbtn_i = document.getElementsByName("cost")
-			var status_i = document.getElementsByName("status")
-			var b_id_i = document.getElementsByName("b_id")
-                
-			for( j=0; j<tbl_tr.length; j++ ){
-				if( status_i.item(j).value == "unset" ){
-					if( costbtn_i.item(j).value < b_cost_min ){
-						b_cost_min = parseFloat(costbtn_i.item(j).value);
-						b_id = b_id_i.item(j).innerHTML;
-					}
-				}
-			}
-			if( b_cost_min > rcost ) break;
-			deck_set(b_id);
-		}
-		document.getElementById("mes").innerHTML = "";
-        setTimeout(function() {
-            location.href = "http://"+host+"/card/deck.php";
-        }, 2000);
-    }
+	}
 
 
 }
@@ -2619,7 +2619,7 @@ function deck_set(n){
 		data: data,
 		onload:function(x){console.log(x.responseText);}
 	});
-    
+
 	document.getElementById("cost_"+b_id).value = 0;
 	tbl_tr.style.backgroundColor="yellow";
 	document.getElementById("status_"+n).value = "ondeck"
